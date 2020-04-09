@@ -6,10 +6,6 @@
 	objectVersion = 50;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		E0BACAC9243F1B360011BB2C /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0BACAC8243F1B360011BB2C /* main.swift */; };
-/* End PBXBuildFile section */
-
 /* Begin PBXCopyFilesBuildPhase section */
 		E0BACAC3243F1B360011BB2C /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -23,8 +19,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		E0BACAC5243F1B360011BB2C /* L-systems */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "L-systems"; sourceTree = BUILT_PRODUCTS_DIR; };
-		E0BACAC8243F1B360011BB2C /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		E0BACAC5243F1B360011BB2C /* L-systems */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = "L-systems"; path = "/Users/jacekkaluzny/Library/Mobile Documents/com~apple~CloudDocs/Studia/Doktorat/L-systeems/L-systems/build/Debug/L-systems"; sourceTree = "<absolute>"; };
+		E0BACACF243F1B740011BB2C /* main.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = main.py; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -41,25 +37,8 @@
 		E0BACABC243F1B360011BB2C = {
 			isa = PBXGroup;
 			children = (
-				E0BACAC7243F1B360011BB2C /* L-systems */,
-				E0BACAC6243F1B360011BB2C /* Products */,
+				E0BACACF243F1B740011BB2C /* main.py */,
 			);
-			sourceTree = "<group>";
-		};
-		E0BACAC6243F1B360011BB2C /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				E0BACAC5243F1B360011BB2C /* L-systems */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		E0BACAC7243F1B360011BB2C /* L-systems */ = {
-			isa = PBXGroup;
-			children = (
-				E0BACAC8243F1B360011BB2C /* main.swift */,
-			);
-			path = "L-systems";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -106,7 +85,7 @@
 				Base,
 			);
 			mainGroup = E0BACABC243F1B360011BB2C;
-			productRefGroup = E0BACAC6243F1B360011BB2C /* Products */;
+			productRefGroup = E0BACABC243F1B360011BB2C;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -120,7 +99,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E0BACAC9243F1B360011BB2C /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
