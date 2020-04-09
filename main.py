@@ -106,7 +106,7 @@ for i in range(0, 20):
 #scene.select()
 #
 
-cylinder(pos = vector(0.0,0.0,0.0), axis = vector(elements[0].position.x, elements[0].position.y, elements[0].position.z), radius = 0.02, color=color.red)
+cylinder(pos = vector(0.0,0.01,0.0), axis = vector(elements[0].position.x, elements[0].position.y, elements[0].position.z), radius = 0.02, color=color.red)
 elements[0].position_abs.x = 0.0 + elements[0].position.x
 elements[0].position_abs.y = 0.0 + elements[0].position.y
 elements[0].position_abs.z = 0.0 + elements[0].position.z
@@ -121,3 +121,4 @@ for element in elements[1:]:
     element.position_abs.x = element.parent.position_abs.x + element.position_calc.x
     element.position_abs.y = element.parent.position_abs.y + element.position_calc.y
     element.position_abs.z = element.parent.position_abs.z + element.position_calc.z
+
