@@ -181,8 +181,8 @@ class Element:
                     ]
 
 #        newvec = [rotationz[0][0]*c.x+rotationz[0][1]*c.y+rotationz[0][2]*c.z, rotationz[1][0]*c.x+rotationz[1][1]*c.y+rotationz[1][2]*c.z, rotationz[2][0]*c.x+rotationz[2][1]*c.y+rotationz[2][2]*c.z]
-
-        newveca = ((np.array(rotationz).dot(np.array(rotationy))).dot(np.array(rotationx))).dot(np.array([c.x, c.y, c.z]))
+        print(c.y, (1.0*self.from_root),  c.y**(1.0*self.from_root))
+        newveca = ((np.array(rotationz).dot(np.array(rotationy))).dot(np.array(rotationx))).dot(np.array([c.x **(1.0*self.from_root), c.y**(1.0*self.from_root), c.z**(1.0*self.from_root)]))
         newvec = vector(newveca[2], newveca[1], newveca[0])
 #        print("last", newvec)
         return newvec
@@ -217,21 +217,31 @@ elements_templates = {}
 ###############################################      ---         SETTINGS         ---      ###############################################
 ##########################################################################################################################################
 
+r1 = 0.9
+r2 = 0.7
+a1 = 10.0
+a2 = 60.0
+wr = 0.707
+
 
 #system = System(V = ["ar", "al", "br", "bl", "p"], w = "p", P = {"p":["p", "ar", "al"],"ar": ["al", "br"], "al": ["p", "bl", "ar"], "br": ["ar"], "bl": ["al"]})
-system = System(V = ["ar", "al", "p"], w = "p", P = {"p":["p", "ar", "al"],"ar": ["p", "al"], "al": ["p", "ar"]})
+system = System(V = ["ar", "al", "p"], w = "p", P = {"p":["al", "ar"],"ar": ["br", "bl"], "al": ["ar", "al"], "br":["al", "ar"], "bl": ["al", "br"], "cr":["br", "bl"], "cl":["ar", "al"]})
 #elements_templates["ar"] = Element(symbol = "ar", position = Position(0.1, 0.7, 0.4), rotation = Position(0,0,0))
 #elements_templates["al"] = Element(symbol = "al", position = Position(0.05, 0.8, -0.75), rotation = Position(0,40,0))
 #elements_templates["br"] = Element(symbol = "br", position = Position(0.3, 1.4, 0.5), rotation = Position(0,0,0))
 #elements_templates["bl"] = Element(symbol = "bl", position = Position(0.35, 0.5, -0.35), rotation = Position(0,0,0))
 #elements_templates["p"] = Element(symbol = "p", position = Position(0.0, 2.0, 0.0), rotation = Position(0.0,30.0,0.0))
 
-elements_templates["p"] = Element(symbol = "p", position = Position(0.0, 2.0, 0.0), rotation = Position(0.0,31.0,0.0))
-elements_templates["ar"] = Element(symbol = "ar", position = Position(0.0, 1.1, 0.0), rotation = Position(47.0,5.0,5.0))
-elements_templates["al"] = Element(symbol = "al", position = Position(0.0, 0.9, 0.0), rotation = Position(65.0,180.0,0.0))
+elements_templates["p"] = Element(symbol = "p", position = Position(0.0, 0.9, 0.0), rotation = Position(0.0,0.0,0.0))
+elements_templates["ar"] = Element(symbol = "ar", position = Position(0.0, r1, 0.0), rotation = Position(0.0,137.5, 360.0-a2))
+elements_templates["al"] = Element(symbol = "al", position = Position(0.0, r2, 0.0), rotation = Position(0.0,137.5,a1))
+elements_templates["br"] = Element(symbol = "br", position = Position(0.0, r1, 0.0), rotation = Position(0.0,137.5,a2))
+elements_templates["bl"] = Element(symbol = "bl", position = Position(0.0, r2, 0.0), rotation = Position(0.0,137.5,360.0-a1))
+#elements_templates["cr"] = Element(symbol = "cr", position = Position(0.0, r1, 0.0), rotation = Position(0.0,1.0,0.0))
+#elements_templates["cl"] = Element(symbol = "cl", position = Position(0.0, r2, 0.0), rotation = Position(0.0,1.0,0.0))
 
 
-nrOfNodes = 92
+nrOfNodes = 1512
 
 ##########################################################################################################################################
 ###############################################      ---         SETTINGS         ---      ###############################################
