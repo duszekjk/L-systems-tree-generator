@@ -50,6 +50,10 @@ class System():
     V = []
     w = "ar"
     P = {}
+    element_templates = {}
+    nrOfNodes = 20
+    width_scale = 0.07
+    width_rate = 0.9
     width_rate = 0.9
     def __init__(self, V = ["ar", "al", "br", "bl"], w = "ar", P = {"ar": ["al", "br"], "al": ["bl", "ar"], "br": ["ar"], "bl": ["al"]}, width_rate = 0.9):
         self.V = V
@@ -58,6 +62,48 @@ class System():
         self.width_rate = width_rate
     def next(self, symbol: "a"):
         return self.P[symbol]
+def add_system(system):
+    global systems_array_simple
+    global all_dictionary
+    
+    systems_array_simple.append(system)
+    j = 0
+    for key in system.P:
+        while key+str(j) in all_dictionary:
+            j+=1
+        all_dictionary[key+str(j)] = system.P[key]
+
+
+
+class SystemAll():
+    V = []
+    w = "ar"
+    P = {}
+    p1 = 0.0
+    p2 = 0.0
+    p3 = 0.0
+    a = {}
+    r = {}
+    nrOfNodes = 20
+    width_scale = 0.07
+    width_rate = 0.9
+    def __init__(self, V = ["ar", "al", "br", "bl"], w = "ar", P = {"ar.0": (95,["al", "br"]), "al.0": (95, ["bl", "ar"]), "br.0": (95, ["ar"]), "bl.0": (95, ["al"])}, width_rate = 0.9):
+        self.V = V
+        self.w = w
+        self.P = P
+        self.width_rate = width_rate
+    def next(self, symbol: "a"):
+        next_s = []
+        for i in range(0, 100):
+            try:
+                next_all = self.P[symbol+"."+str(i)]
+                if random.rand.int(0, 101) < next_all[0]:
+                    next_s = next_all[1]
+            except:
+                break
+        return next_s
+#    def __str__(self):
+#        
 
 class Element:
     position     = Position()
@@ -95,6 +141,18 @@ class Element:
         
     def __str__(self):
         return self.symbol
+        
+    def a(self):
+        a = {self.symbol+"x": str(self.rotation.x), self.symbol+"y": str(self.rotation.y), self.symbol+"z": str(self.rotation.z)}
+        return a
+
+    def r(self):
+        if self.position.x == 0 and self.position.z == 0:
+            r = {self.symbol: str(self.position.y)}
+        else:
+            r = {self.symbol+"x": str(self.postition.x), self.symbol+"y": str(self.position.y), self.symbol+"z": str(self.position.z)}
+        return r
+        
     def set_from_root(self, d = 0):
         self.from_root = d
         for child in self.children:
@@ -269,20 +327,15 @@ class Element:
         sum_pos = (self.parent.position_calc.x+self.parent.position_calc.y+self.parent.position_calc.z)
         if self.parent != None:#sum_pos > 0:
             self.position_calc = self.alignWithVector()
-#            self.axis_abs.x = self.parent.position_calc.x/sum_pos
-#            self.axis_abs.y = self.parent.position_calc.y/sum_pos
-#            self.axis_abs.z = self.parent.position_calc.z/sum_pos
-#            self.position_calc.x = self.position.x * self.axis_abs.x
-#            self.position_calc.y = self.position.y * self.axis_abs.y
-#            self.position_calc.z = self.position.z * self.axis_abs.z
         else:
             self.position_calc.x = self.position.x
             self.position_calc.y = self.position.y
             self.position_calc.z = self.position.z
         print(self.position_calc.y)
 
-elements_templates = {}
 
+systems_array_simple = []
+all_dictionary = {}
 
 ##########################################################################################################################################
 #####################################      ---         definitions and classes         ---      ##########################################
@@ -305,41 +358,45 @@ elements_templates = {}
 #wr = 0.977
 #min_width = 0.003
 #system = System(V = ["ar", "al", "br", "bl", "p"], w = "p", P = {"p":["p", "ar", "al"],"ar": ["al", "br"], "al": ["p", "bl", "ar"], "br": ["ar"], "bl": ["al"]})
-#elements_templates["ar"] = Element(symbol = "ar", position = Position(0.1, 0.7, 0.4), rotation = Position(0,0,0))
-#elements_templates["al"] = Element(symbol = "al", position = Position(0.05, 0.8, -0.75), rotation = Position(0,40,0))
-#elements_templates["br"] = Element(symbol = "br", position = Position(0.3, 1.4, 0.5), rotation = Position(0,0,0))
-#elements_templates["bl"] = Element(symbol = "bl", position = Position(0.35, 0.5, -0.35), rotation = Position(0,0,0))
-#elements_templates["p"] = Element(symbol = "p", position = Position(0.0, 2.0, 0.0), rotation = Position(0.0,30.0,0.0))
-#elements_templates["cr"] = Element(symbol = "cr", position = Position(0.0, r1, 0.0), rotation = Position(0.0,1.0,0.0))
-#elements_templates["cl"] = Element(symbol = "cl", position = Position(0.0, r2, 0.0), rotation = Position(0.0,1.0,0.0))
+#system.element_templates["ar"] = Element(symbol = "ar", position = Position(0.1, 0.7, 0.4), rotation = Position(0,0,0))
+#system.element_templates["al"] = Element(symbol = "al", position = Position(0.05, 0.8, -0.75), rotation = Position(0,40,0))
+#system.element_templates["br"] = Element(symbol = "br", position = Position(0.3, 1.4, 0.5), rotation = Position(0,0,0))
+#system.element_templates["bl"] = Element(symbol = "bl", position = Position(0.35, 0.5, -0.35), rotation = Position(0,0,0))
+#system.element_templates["p"] = Element(symbol = "p", position = Position(0.0, 2.0, 0.0), rotation = Position(0.0,30.0,0.0))
+#system.element_templates["cr"] = Element(symbol = "cr", position = Position(0.0, r1, 0.0), rotation = Position(0.0,1.0,0.0))
+#system.element_templates["cl"] = Element(symbol = "cl", position = Position(0.0, r2, 0.0), rotation = Position(0.0,1.0,0.0))
+
 
 ##00
-#
-#r1 = 0.9
-#r2 = 0.85
-#r3 = 0.6
-#a1 = 90
-#a2 = 90
-#p1 = 0.0
-#p2 = 137.5
-#p3 = 0.0
-#wr = 0.9
-#min_width = 0.003
-#system = System(V = ["ar", "al", "p"], w = "p", P = {"p":["p", "al", "ar"],"ar": ["bl"], "al": ["br"], "br":["cr"], "bl": ["cl"], "cr":["dr", "dl"], "cl":["dr", "dl"], "dr":["dr", "dl"], "dl":["dr"]}, width_rate = wr)
-#
-#elements_templates["p"] = Element(symbol = "p", position = Position(0.0, 0.9, 0.0), rotation = Position(p1,p2,p3))
-#elements_templates["ar"] = Element(symbol = "ar", position = Position(0.0, r1, 0.0), rotation = Position(180.0,0.0, a1))
-#elements_templates["al"] = Element(symbol = "al", position = Position(0.0, r1, 0.0), rotation = Position(180.0,0.0, 360-a1))
-#elements_templates["br"] = Element(symbol = "br", position = Position(0.0, r2, 0.0), rotation = Position(0.0,0.0,50.0))
-#elements_templates["bl"] = Element(symbol = "bl", position = Position(0.0, r2, 0.0), rotation = Position(0.0,0.0,360-50.0))
-#elements_templates["cr"] = Element(symbol = "cr", position = Position(0.0, r2, 0.0), rotation = Position(0.0,0.0,360.0-25.0))
-#elements_templates["cl"] = Element(symbol = "cl", position = Position(0.0, r2, 0.0), rotation = Position(0.0,0.0,25.0))
-#elements_templates["dr"] = Element(symbol = "dr", position = Position(0.0, r3, 0.0), rotation = Position(15.0,0.0,0.0))
-#elements_templates["dl"] = Element(symbol = "dl", position = Position(0.0, r3, 0.0), rotation = Position(360.0-15.0,0.0,0.0))
-#
-#
-#nrOfNodes = 2005
-#width_scale = 0.07
+i_all = 0
+r1 = 0.9
+r2 = 0.85
+r3 = 0.6
+a1 = 90
+a2 = 90
+p1 = 0.0
+p2 = 137.5
+p3 = 0.0
+wr = 0.9
+min_width = 0.003
+system = System(V = ["ar", "al", "p"], w = "p", P = {"p":["p", "al", "ar"],"ar": ["bl"], "al": ["br"], "br":["cr"], "bl": ["cl"], "cr":["dr", "dl"], "cl":["dr", "dl"], "dr":["dr", "dl"], "dl":["dr"]}, width_rate = wr)
+system.element_templates
+system.element_templates["p"] = Element(symbol = "p", position = Position(0.0, 0.9, 0.0), rotation = Position(p1,p2,p3))
+system.element_templates["ar"] = Element(symbol = "ar", position = Position(0.0, r1, 0.0), rotation = Position(180.0,0.0, a1))
+system.element_templates["al"] = Element(symbol = "al", position = Position(0.0, r1, 0.0), rotation = Position(180.0,0.0, 360-a1))
+system.element_templates["br"] = Element(symbol = "br", position = Position(0.0, r2, 0.0), rotation = Position(0.0,0.0,50.0))
+system.element_templates["bl"] = Element(symbol = "bl", position = Position(0.0, r2, 0.0), rotation = Position(0.0,0.0,360-50.0))
+system.element_templates["cr"] = Element(symbol = "cr", position = Position(0.0, r2, 0.0), rotation = Position(0.0,0.0,360.0-25.0))
+system.element_templates["cl"] = Element(symbol = "cl", position = Position(0.0, r2, 0.0), rotation = Position(0.0,0.0,25.0))
+system.element_templates["dr"] = Element(symbol = "dr", position = Position(0.0, r3, 0.0), rotation = Position(15.0,0.0,0.0))
+system.element_templates["dl"] = Element(symbol = "dl", position = Position(0.0, r3, 0.0), rotation = Position(360.0-15.0,0.0,0.0))
+
+
+system.nrOfNodes = 2005
+system.width_scale = 0.07
+add_system(system)
+
+    
 
 #
 #01
@@ -352,16 +409,16 @@ elements_templates = {}
 #wr = 0.9
 #min_width = 0.003
 #system = System(V = ["ar", "al", "p"], w = "p", P = {"p":["p", "al", "ar"],"ar": ["pb"], "al": ["pb"], "pb":["pb", "br", "bl"], "br":[], "bl":[]}, width_rate = wr)
-#elements_templates["p"] = Element(symbol = "p", position = Position(0.0, 0.9, 0.0), rotation = Position(0.0,137.5,0.0))
-#elements_templates["pb"] = Element(symbol = "pb", position = Position(0.0, r2, 0.0), rotation = Position(0.0,137.5,0.0))
-#elements_templates["ar"] = Element(symbol = "ar", position = Position(0.0, r1, 0.0), rotation = Position(180.0,0.0, a1))
-#elements_templates["al"] = Element(symbol = "al", position = Position(0.0, r1, 0.0), rotation = Position(180.0,0.0, 360-a1))
-#elements_templates["br"] = Element(symbol = "br", position = Position(0.0, r2, 0.0), rotation = Position(180.0,0.0, a1))
-#elements_templates["bl"] = Element(symbol = "bl", position = Position(0.0, r2, 0.0), rotation = Position(180.0,0.0, 360-a1))
+#system.element_templates["p"] = Element(symbol = "p", position = Position(0.0, 0.9, 0.0), rotation = Position(0.0,137.5,0.0))
+#system.element_templates["pb"] = Element(symbol = "pb", position = Position(0.0, r2, 0.0), rotation = Position(0.0,137.5,0.0))
+#system.element_templates["ar"] = Element(symbol = "ar", position = Position(0.0, r1, 0.0), rotation = Position(180.0,0.0, a1))
+#system.element_templates["al"] = Element(symbol = "al", position = Position(0.0, r1, 0.0), rotation = Position(180.0,0.0, 360-a1))
+#system.element_templates["br"] = Element(symbol = "br", position = Position(0.0, r2, 0.0), rotation = Position(180.0,0.0, a1))
+#system.element_templates["bl"] = Element(symbol = "bl", position = Position(0.0, r2, 0.0), rotation = Position(180.0,0.0, 360-a1))
 #
 #
-#nrOfNodes = 200
-#width_scale = 0.07
+#system.nrOfNodes = 200
+#system.width_scale = 0.07
 
 
 ##02
@@ -374,15 +431,15 @@ elements_templates = {}
 #min_width = 0.003
 #system = System(V = ["ar", "al", "p"], w = "p", P = {"p":["al", "ar"],"ar": ["br", "bl"], "al": ["ar", "al"], "br":["al", "ar"], "bl": ["al", "br"], "cr":["br", "bl"], "cl":["ar", "al"]}, width_rate = wr)
 #
-#elements_templates["p"] = Element(symbol = "p", position = Position(0.0, 0.9, 0.0), rotation = Position(0.0,0.0,0.0))
-#elements_templates["ar"] = Element(symbol = "ar", position = Position(0.0, r1, 0.0), rotation = Position(0.0,137.5, 360.0-a2))
-#elements_templates["al"] = Element(symbol = "al", position = Position(0.0, r2, 0.0), rotation = Position(0.0,137.5,a1))
-#elements_templates["br"] = Element(symbol = "br", position = Position(0.0, r1, 0.0), rotation = Position(0.0,137.5,a2))
-#elements_templates["bl"] = Element(symbol = "bl", position = Position(0.0, r2, 0.0), rotation = Position(0.0,137.5,360.0-a1))
+#system.element_templates["p"] = Element(symbol = "p", position = Position(0.0, 0.9, 0.0), rotation = Position(0.0,0.0,0.0))
+#system.element_templates["ar"] = Element(symbol = "ar", position = Position(0.0, r1, 0.0), rotation = Position(0.0,137.5, 360.0-a2))
+#system.element_templates["al"] = Element(symbol = "al", position = Position(0.0, r2, 0.0), rotation = Position(0.0,137.5,a1))
+#system.element_templates["br"] = Element(symbol = "br", position = Position(0.0, r1, 0.0), rotation = Position(0.0,137.5,a2))
+#system.element_templates["bl"] = Element(symbol = "bl", position = Position(0.0, r2, 0.0), rotation = Position(0.0,137.5,360.0-a1))
 #
 #
-#nrOfNodes = 152
-#width_scale = 0.07
+#system.nrOfNodes = 152
+#system.width_scale = 0.07
 
 
 #03
@@ -395,14 +452,14 @@ elements_templates = {}
 #min_width = 0.003
 #system = System(V = ["ar", "al", "p"], w = "p", P = {"p":["p", "al", "ar"],"ar": ["b", "al"], "al": ["b", "ar"], "b":["b", "ar", "al"]}, width_rate = wr)
 #
-#elements_templates["p"] = Element(symbol = "p", position = Position(0.0, r1, 0.0), rotation = Position(0.0,40.0,0.0))
-#elements_templates["ar"] = Element(symbol = "ar", position = Position(0.0, r2, 0.0), rotation = Position(0.0,0.0,a1 ))
-#elements_templates["al"] = Element(symbol = "al", position = Position(0.0, r2, 0.0), rotation = Position(0.0,0.0,-a1))
-#elements_templates["b"] = Element(symbol = "b", position = Position(0.0, r1, 0.0), rotation = Position(0.0,0.0,0.0))
+#system.element_templates["p"] = Element(symbol = "p", position = Position(0.0, r1, 0.0), rotation = Position(0.0,40.0,0.0))
+#system.element_templates["ar"] = Element(symbol = "ar", position = Position(0.0, r2, 0.0), rotation = Position(0.0,0.0,a1 ))
+#system.element_templates["al"] = Element(symbol = "al", position = Position(0.0, r2, 0.0), rotation = Position(0.0,0.0,-a1))
+#system.element_templates["b"] = Element(symbol = "b", position = Position(0.0, r1, 0.0), rotation = Position(0.0,0.0,0.0))
 #
 #
-#nrOfNodes = 1502
-#width_scale = 0.07
+#system.nrOfNodes = 1502
+#system.width_scale = 0.07
 #
 ##04
 #
@@ -414,17 +471,17 @@ elements_templates = {}
 #wr = 0.9
 #min_width = 0.003
 #system = System(V = ["ar", "al", "p"], w = "p", P = {"p":["p", "al", "ar"],"ar": ["pb"], "al": ["pa"], "pa":["pa", "br", "bl"], "pb":["pb", "br", "bl"], "br":[], "bl":[]}, width_rate = wr)
-#elements_templates["p"] = Element(symbol = "p", position = Position(0.0, 0.9, 0.0), rotation = Position(0.0,137.5,0.0))
-#elements_templates["pa"] = Element(symbol = "pa", position = Position(0.0, r2, 0.0), rotation = Position(0.0,137.5,-2.0))
-#elements_templates["pb"] = Element(symbol = "pb", position = Position(0.0, r2, 0.0), rotation = Position(0.0,137.5,2.0))
-#elements_templates["ar"] = Element(symbol = "ar", position = Position(0.0, r1, 0.0), rotation = Position(180.0,0.0, a1))
-#elements_templates["al"] = Element(symbol = "al", position = Position(0.0, r1, 0.0), rotation = Position(180.0,0.0, 360-a1))
-#elements_templates["br"] = Element(symbol = "br", position = Position(0.0, r3, 0.0), rotation = Position(180.0,0.0, a1))
-#elements_templates["bl"] = Element(symbol = "bl", position = Position(0.0, r3, 0.0), rotation = Position(180.0,0.0, 360-a1))
+#system.element_templates["p"] = Element(symbol = "p", position = Position(0.0, 0.9, 0.0), rotation = Position(0.0,137.5,0.0))
+#system.element_templates["pa"] = Element(symbol = "pa", position = Position(0.0, r2, 0.0), rotation = Position(0.0,137.5,-2.0))
+#system.element_templates["pb"] = Element(symbol = "pb", position = Position(0.0, r2, 0.0), rotation = Position(0.0,137.5,2.0))
+#system.element_templates["ar"] = Element(symbol = "ar", position = Position(0.0, r1, 0.0), rotation = Position(180.0,0.0, a1))
+#system.element_templates["al"] = Element(symbol = "al", position = Position(0.0, r1, 0.0), rotation = Position(180.0,0.0, 360-a1))
+#system.element_templates["br"] = Element(symbol = "br", position = Position(0.0, r3, 0.0), rotation = Position(180.0,0.0, a1))
+#system.element_templates["bl"] = Element(symbol = "bl", position = Position(0.0, r3, 0.0), rotation = Position(180.0,0.0, 360-a1))
 #
 #
-#nrOfNodes = 200
-#width_scale = 0.07
+#system.nrOfNodes = 200
+#system.width_scale = 0.07
 
 
 ##05 TO_DO
@@ -439,29 +496,29 @@ elements_templates = {}
 #wr = 0.9999
 #min_width = 0.003
 #system = System(V = ["ar", "al", "p"], w = "p", P = {"p":["pp"], "pp":["ppp"],"ppp":["pppp"],"pppp":["pp", "cl", "cr", "ct"],"cl":["al"],"cr":["ar"],"ct":["ar"], "ar": ["pb"], "al": ["pa"], "pa":[ "br", "bl"], "pb":["br", "bl"], "br":["d"], "bl":["d"], "d":["dr", "dl"], "dr":["e"], "dl":["e"], "e":["el", "er"], "el":[], "er":[]}, width_rate = wr)
-#elements_templates["p"] = Element(symbol = "p", position = Position(0.0, r4, 0.0), rotation = Position(0.0,137.5,0.0))
-#elements_templates["pp"] = Element(symbol = "pp", position = Position(0.0, r1, 0.0), rotation = Position(0.0,137.5,0.0))
-#elements_templates["ppp"] = Element(symbol = "ppp", position = Position(0.0, r1, 0.0), rotation = Position(0.0,137.5,0.0))
-#elements_templates["pppp"] = Element(symbol = "pppp", position = Position(0.0, r1, 0.0), rotation = Position(0.0,137.5,0.0))
-#elements_templates["cr"] = Element(symbol = "cr", position = Position(0.0, r2, 0.0), rotation = Position(a1,0.0, a1))
-#elements_templates["cl"] = Element(symbol = "cl", position = Position(0.0, r2, 0.0), rotation = Position(-a1,0.0, 360-a1))
-#elements_templates["ct"] = Element(symbol = "ct", position = Position(0.0, r2, 0.0), rotation = Position(+a1,0.0, 360-a1))
-#elements_templates["pa"] = Element(symbol = "pa", position = Position(0.0, r3, 0.0), rotation = Position(0.0,10.0,-2.0))
-#elements_templates["pb"] = Element(symbol = "pb", position = Position(0.0, r3, 0.0), rotation = Position(0.0,10.0,2.0))
-#elements_templates["ar"] = Element(symbol = "ar", position = Position(0.0, r3, 0.0), rotation = Position(0.0,0.0, a2))
-#elements_templates["al"] = Element(symbol = "al", position = Position(0.0, r3, 0.0), rotation = Position(0.0,0.0, 360-a2))
-#elements_templates["br"] = Element(symbol = "br", position = Position(0.0, r3, 0.0), rotation = Position(180.0,0.0, a1))
-#elements_templates["bl"] = Element(symbol = "bl", position = Position(0.0, r3, 0.0), rotation = Position(180.0,0.0, 360-a1))
-#elements_templates["d"] = Element(symbol = "d", position = Position(0.0, r3, 0.0), rotation = Position(0.0,0.0, 0.0))
-#elements_templates["dr"] = Element(symbol = "dr", position = Position(0.0, r3, 0.0), rotation = Position(0.0,0.0, 360-a3))
-#elements_templates["dl"] = Element(symbol = "dl", position = Position(0.0, r3, 0.0), rotation = Position(0.0,0.0, a3))
-#elements_templates["e"] = Element(symbol = "e", position = Position(0.0, r3, 0.0), rotation = Position(0.0,0.0, 0.0))
-#elements_templates["er"] = Element(symbol = "er", position = Position(0.0, r3, 0.0), rotation = Position(0.0,0.0, 360-a3))
-#elements_templates["el"] = Element(symbol = "el", position = Position(0.0, r3, 0.0), rotation = Position(0.0,0.0, a3))
+#system.element_templates["p"] = Element(symbol = "p", position = Position(0.0, r4, 0.0), rotation = Position(0.0,137.5,0.0))
+#system.element_templates["pp"] = Element(symbol = "pp", position = Position(0.0, r1, 0.0), rotation = Position(0.0,137.5,0.0))
+#system.element_templates["ppp"] = Element(symbol = "ppp", position = Position(0.0, r1, 0.0), rotation = Position(0.0,137.5,0.0))
+#system.element_templates["pppp"] = Element(symbol = "pppp", position = Position(0.0, r1, 0.0), rotation = Position(0.0,137.5,0.0))
+#system.element_templates["cr"] = Element(symbol = "cr", position = Position(0.0, r2, 0.0), rotation = Position(a1,0.0, a1))
+#system.element_templates["cl"] = Element(symbol = "cl", position = Position(0.0, r2, 0.0), rotation = Position(-a1,0.0, 360-a1))
+#system.element_templates["ct"] = Element(symbol = "ct", position = Position(0.0, r2, 0.0), rotation = Position(+a1,0.0, 360-a1))
+#system.element_templates["pa"] = Element(symbol = "pa", position = Position(0.0, r3, 0.0), rotation = Position(0.0,10.0,-2.0))
+#system.element_templates["pb"] = Element(symbol = "pb", position = Position(0.0, r3, 0.0), rotation = Position(0.0,10.0,2.0))
+#system.element_templates["ar"] = Element(symbol = "ar", position = Position(0.0, r3, 0.0), rotation = Position(0.0,0.0, a2))
+#system.element_templates["al"] = Element(symbol = "al", position = Position(0.0, r3, 0.0), rotation = Position(0.0,0.0, 360-a2))
+#system.element_templates["br"] = Element(symbol = "br", position = Position(0.0, r3, 0.0), rotation = Position(180.0,0.0, a1))
+#system.element_templates["bl"] = Element(symbol = "bl", position = Position(0.0, r3, 0.0), rotation = Position(180.0,0.0, 360-a1))
+#system.element_templates["d"] = Element(symbol = "d", position = Position(0.0, r3, 0.0), rotation = Position(0.0,0.0, 0.0))
+#system.element_templates["dr"] = Element(symbol = "dr", position = Position(0.0, r3, 0.0), rotation = Position(0.0,0.0, 360-a3))
+#system.element_templates["dl"] = Element(symbol = "dl", position = Position(0.0, r3, 0.0), rotation = Position(0.0,0.0, a3))
+#system.element_templates["e"] = Element(symbol = "e", position = Position(0.0, r3, 0.0), rotation = Position(0.0,0.0, 0.0))
+#system.element_templates["er"] = Element(symbol = "er", position = Position(0.0, r3, 0.0), rotation = Position(0.0,0.0, 360-a3))
+#system.element_templates["el"] = Element(symbol = "el", position = Position(0.0, r3, 0.0), rotation = Position(0.0,0.0, a3))
 #
 #
-#nrOfNodes = 550
-#width_scale = 0.07
+#system.nrOfNodes = 550
+#system.width_scale = 0.07
 
 
 
@@ -478,16 +535,16 @@ elements_templates = {}
 #min_width = 0.003
 #system = System(V = ["ar", "al", "p"], w = "p", P = {"p":["p", "al", "ar"],"ar": ["b", "al"], "al": ["b", "ar"], "b":["p", "ar", "al"]}, width_rate = wr)
 #
-#elements_templates["p"] = Element(symbol = "p", position = Position(0.0, r1, 0.0), rotation = Position(p1,p2,p3))
-#elements_templates["ar"] = Element(symbol = "ar", position = Position(0.0, r2, 0.0), rotation = Position(a2,0.0,a1 ))
-#elements_templates["al"] = Element(symbol = "al", position = Position(0.0, r2, 0.0), rotation = Position(-a2,0.0,-a1))
-#elements_templates["b"] = Element(symbol = "b", position = Position(0.0, r1, 0.0), rotation = Position(-p1,p2,p3))
-##elements_templates["br"] = Element(symbol = "br", position = Position(0.0, r1, 0.0), rotation = Position(0.0,137.5,a2))
-##elements_templates["bl"] = Element(symbol = "bl", position = Position(0.0, r2, 0.0), rotation = Position(0.0,137.5,360.0-a1))
+#system.element_templates["p"] = Element(symbol = "p", position = Position(0.0, r1, 0.0), rotation = Position(p1,p2,p3))
+#system.element_templates["ar"] = Element(symbol = "ar", position = Position(0.0, r2, 0.0), rotation = Position(a2,0.0,a1 ))
+#system.element_templates["al"] = Element(symbol = "al", position = Position(0.0, r2, 0.0), rotation = Position(-a2,0.0,-a1))
+#system.element_templates["b"] = Element(symbol = "b", position = Position(0.0, r1, 0.0), rotation = Position(-p1,p2,p3))
+##system.element_templates["br"] = Element(symbol = "br", position = Position(0.0, r1, 0.0), rotation = Position(0.0,137.5,a2))
+##system.element_templates["bl"] = Element(symbol = "bl", position = Position(0.0, r2, 0.0), rotation = Position(0.0,137.5,360.0-a1))
 #
 #
-#nrOfNodes = 702
-#width_scale = 0.07
+#system.nrOfNodes = 702
+#system.width_scale = 0.07
 
 ##02b
 #
@@ -502,16 +559,16 @@ elements_templates = {}
 #min_width = 0.003
 #system = System(V = ["ar", "al", "p"], w = "p", P = {"p":["pp"], "pp":["p","ppp"], "ppp":["ppp", "al", "ar"],"ar": ["b"], "al": ["b"], "b":["ar", "al"]}, width_rate = wr)
 #
-#elements_templates["p"] = Element(symbol = "p", position = Position(0.0, r1, 0.0), rotation = Position(p1,p2,p3))
-#elements_templates["pp"] = Element(symbol = "pp", position = Position(0.0, r1, 0.0), rotation = Position(p1,p2,p3))
-#elements_templates["ppp"] = Element(symbol = "ppp", position = Position(0.0, r1, 0.0), rotation = Position(p1,p2,p3))
-#elements_templates["ar"] = Element(symbol = "ar", position = Position(0.0, r2, 0.0), rotation = Position(a2,0.0,a1 ))
-#elements_templates["al"] = Element(symbol = "al", position = Position(0.0, r2, 0.0), rotation = Position(-a2,0.0,-a1))
-#elements_templates["b"] = Element(symbol = "b", position = Position(0.0, r2, 0.0), rotation = Position(-p1,p2,p3))
+#system.element_templates["p"] = Element(symbol = "p", position = Position(0.0, r1, 0.0), rotation = Position(p1,p2,p3))
+#system.element_templates["pp"] = Element(symbol = "pp", position = Position(0.0, r1, 0.0), rotation = Position(p1,p2,p3))
+#system.element_templates["ppp"] = Element(symbol = "ppp", position = Position(0.0, r1, 0.0), rotation = Position(p1,p2,p3))
+#system.element_templates["ar"] = Element(symbol = "ar", position = Position(0.0, r2, 0.0), rotation = Position(a2,0.0,a1 ))
+#system.element_templates["al"] = Element(symbol = "al", position = Position(0.0, r2, 0.0), rotation = Position(-a2,0.0,-a1))
+#system.element_templates["b"] = Element(symbol = "b", position = Position(0.0, r2, 0.0), rotation = Position(-p1,p2,p3))
 #
 #
-#nrOfNodes = 1002
-#width_scale = 0.07
+#system.nrOfNodes = 1002
+#system.width_scale = 0.07
 
 
 ##07
@@ -529,21 +586,21 @@ elements_templates = {}
 #min_width = 0.003
 #system = System(V = ["ar", "al", "p"], w = "p", P = {"p":["pp"], "pp":["ppp"], "ppp":["p", "al", "ar"],"ar": ["b"], "al": ["b"], "b":["br", "bl"], "br":["bb"], "bl":["br"], "bb":["b"]}, width_rate = wr)
 #
-#elements_templates["p"] = Element(symbol = "p", position = Position(0.0, r1, 0.0), rotation = Position(p1,p2,p3))
-#elements_templates["pp"] = Element(symbol = "pp", position = Position(0.0, r1, 0.0), rotation = Position(p1,p2,p3))
-#elements_templates["ppp"] = Element(symbol = "ppp", position = Position(0.0, r1, 0.0), rotation = Position(p1,p2,p3))
-#elements_templates["ar"] = Element(symbol = "ar", position = Position(0.0, r2, 0.0), rotation = Position(a2,0.0,a1 ))
-#elements_templates["al"] = Element(symbol = "al", position = Position(0.0, r2, 0.0), rotation = Position(-a2,0.0,-a1))
-#elements_templates["br"] = Element(symbol = "br", position = Position(0.0, r2, 0.0), rotation = Position(b2,0.0,b1 ))
-#elements_templates["bl"] = Element(symbol = "bl", position = Position(0.0, r2, 0.0), rotation = Position(-b2,0.0,-b1))
-#elements_templates["b"] = Element(symbol = "b", position = Position(0.0, r2, 0.0), rotation = Position(-p1,p2,p3))
-#elements_templates["bb"] = Element(symbol = "bb", position = Position(0.0, r2, 0.0), rotation = Position(0.0,0.0,0.0))
-##elements_templates["br"] = Element(symbol = "br", position = Position(0.0, r1, 0.0), rotation = Position(0.0,137.5,a2))
-##elements_templates["bl"] = Element(symbol = "bl", position = Position(0.0, r2, 0.0), rotation = Position(0.0,137.5,360.0-a1))
+#system.element_templates["p"] = Element(symbol = "p", position = Position(0.0, r1, 0.0), rotation = Position(p1,p2,p3))
+#system.element_templates["pp"] = Element(symbol = "pp", position = Position(0.0, r1, 0.0), rotation = Position(p1,p2,p3))
+#system.element_templates["ppp"] = Element(symbol = "ppp", position = Position(0.0, r1, 0.0), rotation = Position(p1,p2,p3))
+#system.element_templates["ar"] = Element(symbol = "ar", position = Position(0.0, r2, 0.0), rotation = Position(a2,0.0,a1 ))
+#system.element_templates["al"] = Element(symbol = "al", position = Position(0.0, r2, 0.0), rotation = Position(-a2,0.0,-a1))
+#system.element_templates["br"] = Element(symbol = "br", position = Position(0.0, r2, 0.0), rotation = Position(b2,0.0,b1 ))
+#system.element_templates["bl"] = Element(symbol = "bl", position = Position(0.0, r2, 0.0), rotation = Position(-b2,0.0,-b1))
+#system.element_templates["b"] = Element(symbol = "b", position = Position(0.0, r2, 0.0), rotation = Position(-p1,p2,p3))
+#system.element_templates["bb"] = Element(symbol = "bb", position = Position(0.0, r2, 0.0), rotation = Position(0.0,0.0,0.0))
+##system.element_templates["br"] = Element(symbol = "br", position = Position(0.0, r1, 0.0), rotation = Position(0.0,137.5,a2))
+##system.element_templates["bl"] = Element(symbol = "bl", position = Position(0.0, r2, 0.0), rotation = Position(0.0,137.5,360.0-a1))
 #
 #
-#nrOfNodes = 300
-#width_scale = 0.18
+#system.nrOfNodes = 300
+#system.width_scale = 0.18
 
 
 ##########################################################################################################################################
@@ -562,14 +619,14 @@ elements_templates = {}
 
 
 elements = []
-element = Element(template = elements_templates[system.w], parent = None)
+element = Element(template = system.element_templates[system.w], parent = None)
 elements.append(element)
 
-for i in range(0, nrOfNodes):
+for i in range(0, system.nrOfNodes):
     new_row = system.next(elements[i].symbol)
     
     for new_element in new_row:
-        element = Element(template = elements_templates[new_element], parent = elements[i], width = system.width_rate**i)
+        element = Element(template = system.element_templates[new_element], parent = elements[i], width = system.width_rate**i)
         elements[i].children.append(element)
         elements.append(element)
 elements[0].set_from_root()
@@ -585,7 +642,7 @@ scene.center = vector(0.0, 5.0, 0.0)
 scene.select()
 
 
-cylinder(pos = vector(0.0,0.01,0.0), axis = vector(elements[0].position.x, elements[0].position.y, elements[0].position.z), radius = elements[0].width*width_scale+min_width, color=color.white)
+cylinder(pos = vector(0.0,0.01,0.0), axis = vector(elements[0].position.x, elements[0].position.y, elements[0].position.z), radius = elements[0].width*system.width_scale+min_width, color=color.white)
 elements[0].position_abs.x = 0.0 + elements[0].position.x
 elements[0].position_abs.y = 0.0 + elements[0].position.y
 elements[0].position_abs.z = 0.0 + elements[0].position.z
@@ -595,18 +652,18 @@ for element in elements[1:]:
     print(ii," nodes")
     element.calculate_position()
     if element.width > min_width:
-        cylinder(pos = vector(element.parent.position_abs.x, element.parent.position_abs.y, element.parent.position_abs.z), axis = vector(element.position_calc.x, element.position_calc.y, element.position_calc.z), radius = element.width*width_scale+min_width, color=color.white)
+        cylinder(pos = vector(element.parent.position_abs.x, element.parent.position_abs.y, element.parent.position_abs.z), axis = vector(element.position_calc.x, element.position_calc.y, element.position_calc.z), radius = element.width*system.width_scale+min_width, color=color.white)
     else:
-        cylinder(pos = vector(element.parent.position_abs.x, element.parent.position_abs.y, element.parent.position_abs.z), axis = vector(element.position_calc.x, element.position_calc.y, element.position_calc.z), radius = element.width*width_scale+min_width, color=color.white)
+        cylinder(pos = vector(element.parent.position_abs.x, element.parent.position_abs.y, element.parent.position_abs.z), axis = vector(element.position_calc.x, element.position_calc.y, element.position_calc.z), radius = element.width*system.width_scale+min_width, color=color.white)
         
 #    if element.symbol == "al":
-#        cylinder(pos = vector(element.parent.position_abs.x, element.parent.position_abs.y, element.parent.position_abs.z), axis = vector(element.position_calc.x, element.position_calc.y, element.position_calc.z), radius = element.width*width_scale+min_width, color=color.green)
+#        cylinder(pos = vector(element.parent.position_abs.x, element.parent.position_abs.y, element.parent.position_abs.z), axis = vector(element.position_calc.x, element.position_calc.y, element.position_calc.z), radius = element.width*system.width_scale+min_width, color=color.green)
 #    elif element.symbol == "ar":
-#        cylinder(pos = vector(element.parent.position_abs.x, element.parent.position_abs.y, element.parent.position_abs.z), axis = vector(element.position_calc.x, element.position_calc.y, element.position_calc.z), radius = element.width*width_scale+min_width, color=color.blue)
+#        cylinder(pos = vector(element.parent.position_abs.x, element.parent.position_abs.y, element.parent.position_abs.z), axis = vector(element.position_calc.x, element.position_calc.y, element.position_calc.z), radius = element.width*system.width_scale+min_width, color=color.blue)
 #    elif element.symbol == "p":
-#        cylinder(pos = vector(element.parent.position_abs.x, element.parent.position_abs.y, element.parent.position_abs.z), axis = vector(element.position_calc.x, element.position_calc.y, element.position_calc.z), radius = element.width*width_scale+min_width, color=color.red)
+#        cylinder(pos = vector(element.parent.position_abs.x, element.parent.position_abs.y, element.parent.position_abs.z), axis = vector(element.position_calc.x, element.position_calc.y, element.position_calc.z), radius = element.width*system.width_scale+min_width, color=color.red)
 #    else:
-#        cylinder(pos = vector(element.parent.position_abs.x, element.parent.position_abs.y, element.parent.position_abs.z), axis = vector(element.position_calc.x, element.position_calc.y, element.position_calc.z), radius = element.width*width_scale+min_width)
+#        cylinder(pos = vector(element.parent.position_abs.x, element.parent.position_abs.y, element.parent.position_abs.z), axis = vector(element.position_calc.x, element.position_calc.y, element.position_calc.z), radius = element.width*system.width_scale+min_width)
     element.position_abs.x = element.parent.position_abs.x + element.position_calc.x
     element.position_abs.y = element.parent.position_abs.y + element.position_calc.y
     element.position_abs.z = element.parent.position_abs.z + element.position_calc.z
