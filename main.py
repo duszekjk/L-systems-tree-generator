@@ -15,8 +15,6 @@ species = ["pine", "thuja", "akazia", "maple", "poplar", "birch", "oak", "lemon"
 #####################################      ---         definitions and classes         ---      ##########################################
 ##########################################################################################################################################
 
-#help(pymesh)
-
 class Position:
     x = 0.0
     y = 0.0
@@ -91,11 +89,6 @@ class System():
                 if element.from_root == i:
                     print(element, "("+str(element.parent)+")", end="\t")
 
-        #sphere()
-#        scene = canvas(x=0, y=0, width=3200, height=2400, background=vector(0, 0, 0))
-#        scene.center = vector(0.0, 5.0, 0.0)
-#        scene.select()
-
 
         cylinder(pos = vector(0.0,0.01,0.0), axis = vector(elements[0].position.x, elements[0].position.y, elements[0].position.z), radius = elements[0].width*self.width_scale+min_width, color=color.white)
         elements[0].position_abs.x = 0.0 + elements[0].position.x
@@ -135,7 +128,6 @@ def add_system(system):
         j = 0
         while key+"."+str(j) in all_dictionary and str(system.P[key]) != str(all_dictionary[key+"."+str(j)][1]):
             j+=1
-#        print(str(system.P[key]) ,  str(all_dictionary))
         if key+"."+str(j) in all_dictionary:
             all_dictionary[key+"."+str(j)][2].append(system.id)
         else:
@@ -174,16 +166,12 @@ class SystemAll():
             self.P = system.P
             self.id = system.id
             self.width_rate = system.width_rate
-#            self.element_templates = system.element_templates.copy()
             self.nrOfNodes = system.nrOfNodes
             self.width_scale = system.width_scale
             self.width_rate = system.width_rate
             self.min_width = system.min_width
-#            print("loaded from system")
         if V != None:
             self.V = V
-#        if w != None:
-#            self.w = w
         if P != None:
             self.P = P
         if width_rate != None:
@@ -226,12 +214,7 @@ class SystemAll():
                 self.a[symbol+"z"] = 0.0
             if symbol not in self.r:
                 self.r[symbol] = 0.0
-#        if self.id == 4:
-#            print(self.element_templates)
-#            print("r", self.r)
-#            print("a", self.a)
         self.element_templates = {}
-#        system.element_templates["p"] = Element(symbol = "p", position = Position(0.0, 0.9, 0.0), rotation = Position(p1,p2,p3))
         self.element_templates[self.w] = Element(symbol = self.w, position = Position(0.0, float(self.r[self.w]), 0.0), rotation = Position(float(self.p1),float(self.p2),float(self.p3)))
         for s in self.P:
             symbol = s.split(".")[0]
@@ -272,17 +255,6 @@ class SystemAll():
                 except:
                     break
         return next_s
-#    def json(self):
-#        json_string = """{
-#        "tree": ["""
-#        for element in elements[1:]:
-#            ii+=1
-#            json_string += element.json() + ","
-#        json_string = json_string[:-1]
-#        json_string += """
-#            ]
-#        }"""
-#        return json_string
         
     def render(self, scene):
         global element_id
@@ -292,14 +264,6 @@ class SystemAll():
 
 
         elements = []
-#        first_s = []
-#        for i in range(0, 100):
-#            try:
-#                first_all = self.P[self.w+"."+str(i)]
-#                if random.rand.int(0, 101) < first_all[0]:
-#                    first_s = next_all[1]
-#            except:
-#                break
         element_id = 2
         element = Element(template = self.element_templates[self.w], parent = None)
         elements.append(element)
@@ -315,22 +279,7 @@ class SystemAll():
                 elements[i].children.append(element)
                 elements.append(element)
         elements[0].set_from_root()
-
-#        for i in range(0, len(elements)):
-#            for element in elements:
-#                if element.from_root == i:
-#                    print(element, "("+str(element.parent)+")", end="\t")
-
-
-
         print("")
-        
-#        ply_shape = pymesh.generate_cylinder(np.ndarray([0.0, 0.0, 0.0]), np.ndarray([self.position.x, self.position.y, self.position.z]), self.width*self.width_scale+self.min_width, self.width*self.width_scale+self.min_width, num_segments=32)
-#        mesh_cylinder = o3d.geometry.TriangleMesh.create_cylinder(radius=elements[0].width*self.width_scale/10.0+min_width, height=elements[0].position.y)
-#        mesh_cylinder.compute_vertex_normals()
-#        mesh_cylinder.rotate(np.ndarray([self.rotation.x, self.rotation.y, self.rotation.z]), center=False)
-#        mesh_cylinder.translate((elements[0].position.x, elements[0].position.y, elements[0].position.z), relative=False)
-#        ply_shape = [mesh_cylinder, ]
         cylinder(pos = vector(0.0,0.01,0.0), axis = vector(elements[0].position.x, elements[0].position.y, elements[0].position.z), radius = elements[0].width*self.width_scale+min_width, color=color.white)
         elements[0].position_abs.x = 0.0 + elements[0].position.x
         elements[0].position_abs.y = 0.0 + elements[0].position.y
@@ -360,72 +309,12 @@ class SystemAll():
             ],
             "thickness": """+str(self.width_scale+self.min_width)+"""
         },"""
-#        lastCenter = [0.0,0.0,0.0]
 
         json_string += elements[0].json().replace("THIREPLACE", str(elements[0].width*self.width_scale+self.min_width)) + ","
         for element in elements[1:]:
             ii+=1
-#            print(ii," nodes")
 
             element.calculate_position()
-#            if element.position.y > 0.0:
-#                mesh_cylinder = o3d.geometry.TriangleMesh.create_cylinder(radius=(element.width*self.width_scale)/10.0+self.min_width, height=element.position.y)
-##                aa = mesh_cylinder.get_center()
-##                print(mesh_cylinder.get_center())
-##                mesh_cylinder.translate((0.0, 0.0, element.position.y/2.0), relative=True)
-#                print("ppppppp", element.rotation_abs)
-#                mesh_cylinder.rotate(mesh_cylinder.get_rotation_matrix_from_zyx((radians(element.rotation_abs.y), radians(element.rotation_abs.z), radians(element.rotation_abs.x))), center=False)
-##                mesh_cylinder.translate((0.0, 0.0, element.position.y/2.0), relative=True)
-##                mesh_cylinder.translate((0.0, 0.0, 0-element.position.y), relative=True)
-##                this_size = mesh_cylinder.get_center()
-##                mesh_cylinder.translate((0.0, 0.0, element.position.y/2.0), relative=True)
-#                this_sizeb = [mesh_cylinder.get_max_bound()[0] - mesh_cylinder.get_min_bound()[0], mesh_cylinder.get_max_bound()[1] - mesh_cylinder.get_min_bound()[1],mesh_cylinder.get_max_bound()[2] - mesh_cylinder.get_min_bound()[2]]#mesh_cylinder.get_center()
-#                this_size = this_sizeb
-#                a = 1
-#                b = 1
-#                c = 1
-#                if element.rotation_abs.z > 180:
-#                    a = -1
-#                if not (element.rotation_abs.z > 90 and element.rotation_abs.z < 270):
-##                    b = -1
-#                    c = -1
-##                    this_size[2] = -this_size[2]
-##                    this_size[1] = -this_size[1]
-#                if not(element.rotation_abs.x > 90 and element.rotation_abs.x < 270):
-##                    a = -a
-#                    c = -c
-##                    this_size[0] = -this_size[0]
-##                    this_size[2] = -this_size[2]
-##                if element.rotation_abs.y > 90 and element.rotation_abs.y < 270:
-##                    a = -a
-##                    b = -1
-##                    this_size[0] = -this_size[0]
-##                    this_size[1] = -this_size[1]
-#
-#                this_sizeb[0] *= a
-#                this_sizeb[1] *= b
-#                this_sizeb[2] *= c
-#                this_sizeb[0] *= element.position.y
-#                this_sizeb[1] *= element.position.y
-#                this_sizeb[2] *= element.position.y
-##                print("this size", this_size[0])
-##                print(mesh_cylinder.get_oriented_bounding_box(), this_size)
-#                mesh_cylinder.translate((element.parent.position_old), relative=True)
-#                mesh_cylinder.translate((this_sizeb[0]/2.0,this_sizeb[1]/2.0,this_sizeb[2]/2.0), relative=True)
-##                mesh_cylinder.translate(((element.parent.position_abs.z), (element.parent.position_abs.x), (element.parent.position_abs.y)), relative=False)
-##                mesh_cylinder.translate(((element.parent.position.z), (element.parent.position.x), (element.parent.position.y)), relative=True)
-##                mesh_cylinder.translate((0.0, 0.0, (element.parent.position.y)), relative=True)
-##                mesh_cylinder.translate(((element.position.z), (element.position.x), (element.position.y)), relative=True)
-##                mesh_cylinder.translate(((element.parent.position.z+element.position.z), (element.parent.position.x+element.position.x), (element.parent.position.y+element.position.y)), relative=True)
-##                mesh_cylinder.translate((0.0, 0.0, 1.0), relative=False)
-#
-##                mesh_cylinder.rotate(element.rotation_matrix, center=True)
-#
-#                mesh_cylinder.compute_vertex_normals()
-#                mesh_cylinder.paint_uniform_color([0.9, 0.1, 0.1])
-#                ply_shape.append(mesh_cylinder)
-##                mesh_cylinder.translate(((element.parent.position.z)/-2.0, (element.parent.position.x)/-2.0, (element.parent.position.y)/-2.0), relative=True)
-#                element.position_old = [element.parent.position_old[0] + this_size[0], element.parent.position_old[1] + this_size[1], element.parent.position_old[2] + this_size[2]]
 
 #            if element.symbol == "ar":
 #                cylinder(pos = vector(element.parent.position_abs.x, element.parent.position_abs.y, element.parent.position_abs.z), axis = vector(element.position_calc.x, element.position_calc.y, element.position_calc.z), radius = element.width*self.width_scale+self.min_width, color=color.red)
@@ -447,10 +336,6 @@ class SystemAll():
             ]
         }"""
         self.json = json_string
-#        self.ply_shape = ply_shape
-#        o3d.visualization.draw_geometries(ply_shape)
-#        mesh_frame = o3d.geometry.TriangleMesh.create_coordinate_frame(
-#            size=0.6, origin=[-2, -2, -2])
 
         ##########################################################################################################################################
         ##############################################      ---         RENDERING         ---      ###############################################
@@ -576,39 +461,8 @@ class Element:
         else:
             b = self.parent.parent.position_calc - self.parent.position_calc
         c = self.position
-#        angle = self.rotation_abs.x%360.0
-#        angle = radians(angle)
-#        sinbx = np.sin(angle)
-#        cosbx = np.cos(angle)
-#        rotationx = [
-#                    [1, 0, 0],
-#                    [0,cosbx,-sinbx],
-#                    [0, sinbx, cosbx]
-#                    ]
-#
-#        newvec = [rotationx[0][0]*c.x+rotationx[0][1]*c.y+rotationx[0][2]*c.z, rotationx[1][0]*c.x+rotationx[1][1]*c.y+rotationx[1][2]*c.z, rotationx[2][0]*c.x+rotationx[2][1]*c.y+rotationx[2][2]*c.z]
-#        angle = self.rotation_abs.y%360.0
-#        angle = radians(angle)
-#        sinby = np.sin(angle)
-#        cosby = np.cos(angle)
-#        rotationy = [
-#                    [cosby, 0, sinby],
-#                    [0,1,0],
-#                    [-sinby, 0, cosby]
-#                    ]
-#
-#        angle = self.rotation_abs.z%360.0
-#        angle = radians(angle)
-#        sinbz = np.sin(angle)
-#        cosbz = np.cos(angle)
-#        rotationz = [
-#                    [cosbz, -sinbz, 0],
-#                    [sinbz,cosbz,0],
-#                    [0, 0, 1]
-#                    ]
 
         mesh_cylinder = o3d.geometry.TriangleMesh.create_cylinder(radius=0.3, height=0.9)
-#        self.rotation_matrix = ((np.array(rotationz).dot(np.array(rotationy))).dot(np.array(rotationx)))
         self.rotation_matrix = np.array(mesh_cylinder.get_rotation_matrix_from_yzx((radians(self.rotation_abs.y), radians(self.rotation_abs.z), radians(self.rotation_abs.x))))
         newveca = self.rotation_matrix.dot(np.array([c.x **(1.0*self.from_root), c.y**(1.0*self.from_root), c.z**(1.0*self.from_root)]))
         
@@ -623,7 +477,6 @@ class Element:
             self.position_calc.x = self.position.x
             self.position_calc.y = self.position.y
             self.position_calc.z = self.position.z
-#        print(self.position_calc.y)
 
 
 systems_array_simple = []
@@ -747,28 +600,6 @@ system.width_scale = 0.07
 
 add_system(system)
 
-###02 remove later
-##
-#r1 = 0.9
-#r2 = 0.7
-#a1 = 10.0
-#a2 = 20.0
-#wr = 0.977
-#min_width = 0.003
-#system = System(id = 2, V = ["ar", "al", "p"], w = "p", P = {"p":["al", "ar"],"ar": ["br", "bl"], "al": ["ar", "al"], "br":["al", "ar"], "bl": ["al", "br"], "cr":["br", "bl"], "cl":["ar", "al"]}, width_rate = wr)
-#system.min_width = min_width
-#
-#system.element_templates["p"] = Element(symbol = "p", position = Position(0.0, 0.9, 0.0), rotation = Position(0.0,0.0,0.0))
-#system.element_templates["ar"] = Element(symbol = "ar", position = Position(0.0, r1, 0.0), rotation = Position(0.0,137.5, 360.0-a2))
-#system.element_templates["al"] = Element(symbol = "al", position = Position(0.0, r2, 0.0), rotation = Position(0.0,137.5,a1))
-#system.element_templates["br"] = Element(symbol = "br", position = Position(0.0, r1, 0.0), rotation = Position(0.0,137.5,a2))
-#system.element_templates["bl"] = Element(symbol = "bl", position = Position(0.0, r2, 0.0), rotation = Position(0.0,137.5,360.0-a1))
-#
-#
-#system.nrOfNodes = 152
-#system.width_scale = 0.07
-#
-#add_system(system)
 
 #03
 #
@@ -841,7 +672,6 @@ system.element_templates["ppppp"] = Element(symbol = "ppppp", position = Positio
 system.element_templates["pp"] = Element(symbol = "pp", position = Position(0.0, r1, 0.0), rotation = Position(0.0,137.5,0.0))
 system.element_templates["ar"] = Element(symbol = "ar", position = Position(0.0, r2, 0.0), rotation = Position(180.0,0.0, a1))
 system.element_templates["al"] = Element(symbol = "al", position = Position(0.0, r2, 0.0), rotation = Position(180.0,0.0, -a1))
-#system.element_templates["pb"] = Element(symbol = "pb", position = Position(0.0, r2, 0.0), rotation = Position(a1,0.0, 180))
 system.element_templates["br"] = Element(symbol = "br", position = Position(0.0, r3, 0.0), rotation = Position(0.0,0.0, -a2))
 system.element_templates["bl"] = Element(symbol = "bl", position = Position(0.0, r3, 0.0), rotation = Position(0.0,0.0, a2))
 system.element_templates["cr"] = Element(symbol = "cr", position = Position(0.0, r3, 0.0), rotation = Position(0.0,0.0, -a3))
@@ -857,16 +687,6 @@ system.nrOfNodes = 850
 system.width_scale = 0.05
 
 add_system(system)
-
-#scene = canvas(x=0, y=0, width=512, height=512, background=vector(0, 0, 0))
-#autoscale = False
-#scene.center = vector(0.0, 5.0, 0.0)
-#scene.camera.pos = vector(-12.0079, 2.1538, -0.307841)
-#scene.camera.axis = vector(20.8079, 5.98597, 0.607841)
-#scene.select()
-#
-#system.render(scene)
-#input("enter")
 
 
 ##06
@@ -943,7 +763,6 @@ add_system(system)
 scene = canvas(x=0, y=0, width=512, height=512, background=vector(0, 0, 0))
 scene.center = vector(1.0, 0.0, 1.0)
 scene.select()
-#scene.delete()
 
 jj = 0
 timeStart = time.time()
@@ -963,22 +782,12 @@ for batch_id in range(0, 15):
         scene.camera.axis = vector(20.8079, 5.98597, 0.607841)
         if system_load.id == 5:
             scene.camera.pos = vector(-24.0079, 4.1538, -0.607841)
-#        if system_load.id == 6:
-#            scene.camera.pos = vector(-8.0079, 1.3738, -0.207841)
         if system_load.id == 1:
             scene.camera.pos = vector(-26.0079, 4.5538, -0.607841)
         if system_load.id == 4:
             scene.camera.pos = vector(-26.0079, 4.5538, -0.607841)
             
         scene.select()
-    #    system_load.render(scene)
-#        if jj == 3:
-#            print(system_load.id, system_load.element_templates["p"].position.y)
-    #        for tm in system_load.element_templates:
-    #            print(tm,  system_load.element_templates[tm].rotation.x, end="x ")
-    #            print(tm,  system_load.element_templates[tm].rotation.y, end="y ")
-    #            print(tm,  system_load.element_templates[tm].rotation.z, end="z,  ")
-    #        print("")
         system = None
         system = SystemAll(system = system_load)
         system.P = all_dictionary.copy()
@@ -1005,22 +814,10 @@ for batch_id in range(0, 15):
         system.random()
         system.refresh()
 
-    #    if jj == 5:
         name = str("%04d_" % (jj)) + species[system.id]
         system.render(scene)
         scene.capture(name)
         CSVfile.write(name+", "+str(system))
-    #    print("\n\n\t--", system.id, "--")
-    #    if jj == 3:
-    #        print(system.p1, system.p2, system.p3, system.a, system.r)
-    #    pymesh.save_mesh("/Users/jacekkaluzny/Library/Mobile Documents/com~apple~CloudDocs/Studia/Doktorat/L-systems-tree-generator/tmp"+str(system.id)+".ply", system.ply_shape);
-#        save_shape = None
-#        for part in system.ply_shape:
-#            if save_shape == None:
-#                save_shape = part
-#            else:
-#                save_shape += part
-#        o3d.io.write_triangle_mesh("/Users/jacekkaluzny/Pictures/untitled folder/system"+str(system.id)+".ply", save_shape, write_ascii = True)
         file_json = open("/Users/jacekkaluzny/Pictures/untitled folder/"+name+".json", "w+")
         file_json.write(system.json)
         file_json.close()
