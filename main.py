@@ -7,13 +7,39 @@ import random
 import open3d as o3d
 import time
 import os
+import sys
+import gc
 
-
-species = ["pine", "thuja", "akazia", "maple", "poplar", "birch", "oak", "lemon"]
+#from pympler.tracker import SummaryTracker
+#tracker = SummaryTracker()
 
 ##########################################################################################################################################
 #####################################      ---         definitions and classes         ---      ##########################################
 ##########################################################################################################################################
+
+NR_OF_BATCHES      = 1000
+NR_OF_BATCHES_NOW  = 50
+SAVE_PATH          = "/Users/jacekkaluzny/Pictures/untitled folder/"
+COLOR_TREE         = color.black
+COLOR_BACKGROUND   = color.white
+
+
+species = ["pine", "thuja", "akazia", "maple", "poplar", "birch", "oak", "lemon"]
+
+settings = sys.argv
+last_batch_id = 0
+timeStart = time.time()
+continue_task = False
+
+for s in settings:
+    if s == "c":
+        continue_task = True
+        continue
+    if continue_task == True and last_batch_id == 0:
+        last_batch_id = float(s)
+        continue
+    if continue_task == True:
+        timeStart = float(s)
 
 class Position:
     x = 0.0
@@ -124,7 +150,7 @@ def add_system(system):
     
     systems_array_simple.append(system)
     for key in system.P:
-        print(key)
+#        print(key)
         j = 0
         while key+"."+str(j) in all_dictionary and str(system.P[key]) != str(all_dictionary[key+"."+str(j)][1]):
             j+=1
@@ -132,7 +158,7 @@ def add_system(system):
             all_dictionary[key+"."+str(j)][2].append(system.id)
         else:
             all_dictionary[key+"."+str(j)] = (5, system.P[key], [system.id,])
-        print(key+"."+str(j), all_dictionary[key+"."+str(j)])
+#        print(key+"."+str(j), all_dictionary[key+"."+str(j)])
 
 
 
@@ -204,7 +230,37 @@ class SystemAll():
         description = description[:-1]
         description += "\n"
         return description
-            
+    def header(self):
+        description = "File Name, "
+        description += "species"
+        description += ", "
+        description += "nrOfNodes"
+        description += ", "
+        description += "width_rate"
+        description += ", "
+        description += "min_width"
+        description += ", "
+        description += "width_scale"
+        description += ", "
+        description += "p_rotation_x"
+        description += ", "
+        description += "p_rotation_y"
+        description += ", "
+        description += "p_rotation_z"
+        description += ", "
+        for p in sorted (self.P):
+            description += str(p)+"->"+str(self.P[p][1]).replace(",", "|")
+            description += ", "
+        for aa in sorted (self.a):
+            description += aa + " rotation"
+            description += ", "
+        for rr in sorted (self.r):
+            description += rr + " length"
+            description += ", "
+        description = description[:-1]
+        description += "\n"
+        return description
+        
     def refresh(self):
         for s in self.P:
             symbol = s.split(".")[0]
@@ -228,7 +284,7 @@ class SystemAll():
         for rr in self.r:
             self.r[rr] = str(float(self.r[rr]) + random.uniform(-0.05, 0.05))
         for p in self.P:
-            self.P[p] = (self.P[p][0]+random.randint(-10.0, 10.0), self.P[p][1], self.P[p][2])
+            self.P[p] = (max(0,min(100,self.P[p][0]+random.randint(-5, 5))), self.P[p][1], self.P[p][2])
         self.nrOfNodes += random.randint(-200, 200)
         self.width_scale += random.uniform(-0.01, 0.01)
         self.width_rate += random.uniform(-0.01, 0.01)
@@ -279,8 +335,8 @@ class SystemAll():
                 elements[i].children.append(element)
                 elements.append(element)
         elements[0].set_from_root()
-        print("")
-        cylinder(pos = vector(0.0,0.01,0.0), axis = vector(elements[0].position.x, elements[0].position.y, elements[0].position.z), radius = elements[0].width*self.width_scale+min_width, color=color.white)
+#        print("")
+        cylinder(pos = vector(0.0,0.01,0.0), axis = vector(elements[0].position.x, elements[0].position.y, elements[0].position.z), radius = elements[0].width*self.width_scale+min_width, color=COLOR_TREE)
         elements[0].position_abs.x = 0.0 + elements[0].position.x
         elements[0].position_abs.y = 0.0 + elements[0].position.y
         elements[0].position_abs.z = 0.0 + elements[0].position.z
@@ -319,7 +375,7 @@ class SystemAll():
 #            if element.symbol == "ar":
 #                cylinder(pos = vector(element.parent.position_abs.x, element.parent.position_abs.y, element.parent.position_abs.z), axis = vector(element.position_calc.x, element.position_calc.y, element.position_calc.z), radius = element.width*self.width_scale+self.min_width, color=color.red)
 #            else:
-            cylinder(pos = vector(element.parent.position_abs.x, element.parent.position_abs.y, element.parent.position_abs.z), axis = vector(element.position_calc.x, element.position_calc.y, element.position_calc.z), radius = element.width*self.width_scale+self.min_width, color=color.white)
+            cylinder(pos = vector(element.parent.position_abs.x, element.parent.position_abs.y, element.parent.position_abs.z), axis = vector(element.position_calc.x, element.position_calc.y, element.position_calc.z), radius = element.width*self.width_scale+self.min_width, color=COLOR_TREE)
 #            if element.width > min_width:
 #                cylinder(pos = vector(element.parent.position_abs.x, element.parent.position_abs.y, element.parent.position_abs.z), axis = vector(element.position_calc.x, element.position_calc.y, element.position_calc.z), radius = element.width*self.width_scale+self.min_width, color=color.white)
 #            else:
@@ -540,7 +596,6 @@ system.element_templates["dr"] = Element(symbol = "dr", position = Position(0.0,
 system.element_templates["dl"] = Element(symbol = "dl", position = Position(0.0, r3, 0.0), rotation = Position(360.0-15.0,0.0,0.0))
 
 system.nrOfNodes = 3505
-#system.nrOfNodes = 20
 system.width_scale = 0.07
 add_system(system)
 
@@ -651,7 +706,7 @@ system.width_scale = 0.09
 add_system(system)
 
 
-#05 TO_DO
+#05
 
 element_id = 1
 r1 = 0.984
@@ -760,22 +815,99 @@ add_system(system)
 ###############################################      ---  PREPARE FOR EXPORTING   ---      ###############################################
 ##########################################################################################################################################
 
-scene = canvas(x=0, y=0, width=512, height=512, background=vector(0, 0, 0))
-scene.center = vector(1.0, 0.0, 1.0)
-scene.select()
+#scene = canvas(x=0, y=0, width=512, height=512, background=vector(0, 0, 0))
+#scene.center = vector(1.0, 0.0, 1.0)
+#scene.select()
 
+def scene_clear(sc):
+    for obj in sc.objects:
+        obj.visible = False
+    for obj in sc.objects:
+        del obj
+
+try:
+    os.system("killall Finder")
+    time.sleep(3)
+except:
+    print("")
 jj = 0
 timeStart = time.time()
-CSVfile = open("/Users/jacekkaluzny/Pictures/untitled folder/opis.csv", "w+")
-CSVheader = ""
-CSVfile.write(CSVheader)
-CSVfile.close()
-CSVfile = open("/Users/jacekkaluzny/Pictures/untitled folder/opis.csv", "a+")
-for batch_id in range(0, 15):
-    for system_load in systems_array_simple:
-        scene.delete()
+if not continue_task:
+    try:
+        CSVfile = open(SAVE_PATH+"desc.csv", "r")
+        ll = ""
+        for l in CSVfile:
+            ll = l
 
-        scene = canvas(x=0, y=0, width=512, height=512, background=vector(0, 0, 0))
+        jj = int(float(ll.split("_")[0]))
+        last_batch_id = int(jj/8)
+        NR_OF_BATCHES_NOW += last_batch_id
+        jj = 8*last_batch_id
+        print("starting from: ", last_batch_id)
+        CSVfile.close()
+    except:
+        CSVfile = open(SAVE_PATH+"desc.csv", "w+")
+        system = SystemAll(system = systems_array_simple[0])
+        scene = canvas(x=0, y=0, width=512, height=512, background=COLOR_BACKGROUND)
+        system.P = all_dictionary.copy()
+
+        for key in systems_array_simple[0].P:
+#            print(key+": "+str(system_load.P[key]), end=", ")
+            for ii in range(0,100):
+                if key+"."+str(ii) in system.P:
+                    if systems_array_simple[0].id in system.P[key+"."+str(ii)][2]:
+                        system.P[key+"."+str(ii)] = (95, system.P[key+"."+str(ii)][1], system.P[key+"."+str(ii)][2])
+                else:
+                    break
+            if key == 'p':
+                system.p1 = systems_array_simple[0].element_templates[key].rotation.x
+                system.p2 = systems_array_simple[0].element_templates[key].rotation.y
+                system.p3 = systems_array_simple[0].element_templates[key].rotation.z
+            else:
+                system.a.update(systems_array_simple[0].element_templates[key].a())
+            system.r.update(systems_array_simple[0].element_templates[key].r())
+        system.refresh()
+        system.render(scene)
+        CSVheader = system.header()
+        CSVfile.write(CSVheader)
+        CSVfile.close()
+        scene.delete()
+        del scene
+CSVfile = open(SAVE_PATH+"desc.csv", "a+")
+NR_OF_BATCHES_NOW = min(NR_OF_BATCHES_NOW, NR_OF_BATCHES)
+for batch_id in range(last_batch_id, NR_OF_BATCHES_NOW):
+    if last_batch_id > batch_id:
+        continue
+    for system_load in systems_array_simple:
+#        scene_clear(scene)
+#        scene_clear(scene)
+        scene = canvas(x=0, y=0, width=512, height=512, background=COLOR_BACKGROUND)
+        timeChange = time.time()-timeStart
+        timeAvg = timeChange/(1.0+(batch_id-last_batch_id))
+        scene.caption = "<br> <p>"+str("%6.2f" % (batch_id*100.0/NR_OF_BATCHES_NOW))+"%\t\ttime: "+ str("%8.2f" % (timeChange/60.0))+"m\t\tfor batch:"+ str("%6.2f" % (timeAvg))+ "s\t\ttime 1000: "+ str("%6.2f" % (timeAvg*1000.0/3600.0))+ "h\t\t"+ "time left: "+ str("%8.2f m\t\t" % (timeAvg*(NR_OF_BATCHES_NOW-batch_id)/60.0))+str("""<br>
+        <style>
+        #batch[value]::-webkit-progress-bar
+        {
+            background-color: #eee;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
+        }
+        #batch[value]::-webkit-progress-value {
+            background-color: #4e4;
+            border-radius: 4px;
+        }
+        #all[value]::-webkit-progress-bar
+        {
+            background-color: #eee;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
+        }
+        #all[value]::-webkit-progress-value {
+            background-color: #e44;
+            border-radius: 4px;
+        }
+        </style><br><progress id="batch" value="0"""+str(((batch_id-last_batch_id)*100.0/(NR_OF_BATCHES_NOW-last_batch_id)))+"""0" max="100.0" style="width:90%;-webkit-appearance: none;appearance: none;" title="batch"> """+str(((batch_id-last_batch_id)*100.0/(NR_OF_BATCHES_NOW-last_batch_id)))+"""% </progress> Batch\t\t""")+str("""<br><progress id="all" value="0"""+str(((batch_id)*100.0/(NR_OF_BATCHES)))+"""0" max="100.0" style="width:90%;-webkit-appearance: none;appearance: none;" title="all"> """+str((batch_id*100.0/NR_OF_BATCHES))+"""% </progress> All\t\t""")
+        scene.exit = 0
         autoscale = False
         scene.center = vector(0.0, 5.0, 0.0)
         scene.camera.pos = vector(-12.0079, 2.1538, -0.307841)
@@ -788,12 +920,13 @@ for batch_id in range(0, 15):
             scene.camera.pos = vector(-26.0079, 4.5538, -0.607841)
             
         scene.select()
+        
         system = None
         system = SystemAll(system = system_load)
         system.P = all_dictionary.copy()
 
         for key in system_load.P:
-            print(key+": "+str(system_load.P[key]), end=", ")
+#            print(key+": "+str(system_load.P[key]), end=", ")
             for ii in range(0,100):
                 if key+"."+str(ii) in system.P:
                     if system_load.id in system.P[key+"."+str(ii)][2]:
@@ -807,33 +940,57 @@ for batch_id in range(0, 15):
             else:
                 system.a.update(system_load.element_templates[key].a())
             system.r.update(system_load.element_templates[key].r())
-        print("")
-        for key in system.P:
-            if int(system.P[key][0]) > 80:
-                print(key+': '+str(system.P[key][1])+" "+str(system.P[key][0])+', ', end=" ")
+#        print("")
+#        for key in system.P:
+#            if int(system.P[key][0]) > 80:
+#                print(key+': '+str(system.P[key][1])+" "+str(system.P[key][0])+', ', end=" ")
         system.random()
         system.refresh()
 
         name = str("%04d_" % (jj)) + species[system.id]
         system.render(scene)
-        scene.capture(name)
-        CSVfile.write(name+", "+str(system))
-        file_json = open("/Users/jacekkaluzny/Pictures/untitled folder/"+name+".json", "w+")
+        CSVfile.write(name+", "+species[system.id]+", "+str(system))
+        file_json = open(SAVE_PATH+name+".json", "w+")
         file_json.write(system.json)
         file_json.close()
-
+        time.sleep(0.3)
+        scene.capture("LSystemphoto"+name)
+        scene.caption = ""
+        scene.caption = None
 #        input("Press Enter to continue...")
-        
+        del system
         jj += 1
+        if jj % 500 == 499:
+            try:
+                os.system("killall Finder")
+                time.sleep(1)
+                gc.collect()
+            except:
+                print("")
+
+        if jj % 10 == 9:
+            scene.caption = "<script>sessionStorage.clear()</script>";
+#            time.sleep(1)
+#        scene.wrapper.delete()
+        scene.delete()
+        del scene
+#        if jj % 10 == 9:
+#            time.sleep(15)
+            
     timeChange = time.time()-timeStart
-    timeAvg = timeChange/(1.0+batch_id)
-    print("time: ", timeChange/60.0, "m\t\tfor batch:", timeAvg, "s\t\ttime 1000:", timeAvg*1000.0/3600.0, "h")
+    timeAvg = timeChange/(1.0+(batch_id-last_batch_id))
+    print(str("%6.2f" % (batch_id*100.0/NR_OF_BATCHES_NOW))+"%\t\ttime: ", str("%8.2f" % (timeChange/60.0)), "m\t\tfor batch:", str("%6.2f" % (timeAvg)), "s\t\ttime 1000:", str("%6.2f" % (timeAvg*1000.0/3600.0)), "h\t\t", "time left: ", str("%8.2f m\t\t" % (timeAvg*(NR_OF_BATCHES_NOW-batch_id)/60.0)), "["+'{:<50}'.format(('{:|<'+str(int(batch_id*50.0/NR_OF_BATCHES)+0)+'}').format(''))+"]\t\t")
+#    tracker.print_diff()
 
 CSVfile.close()
-os.system("killall Finder")
+try:
+    os.system("killall Finder")
+    time.sleep(3)
+except:
+    print("")
 ##########################################################################################################################################
 ###############################################      ---  PREPARE FOR EXPORTING   ---      ###############################################
 ##########################################################################################################################################
 
-
+exit()
 
