@@ -22,13 +22,15 @@ NR_OF_BATCHES_NOW  = 4
 SAVE_PATH          = "/Users/jacekkaluzny/Pictures/untitled folder/"    #for json models, images are saved in downloads
 COLOR_TREE         = color.black        # default tree color
 COLOR_BACKGROUND   = color.white
-NODES_SIMPLIFIER   = 1.0                #devide nr of nodes by this number to have smaller trees (with fewer elements)
+NODES_SIMPLIFIER   = 20.0                #devide nr of nodes by this number to have smaller trees (with fewer elements)
 
-#       coloring based on node type, length or angle (rgb colors)
-
+#       coloring based on node type (rgb colors)
+COLORS_TREE_SYMBOLS = False
 COLORS_TREE = {"p":vec(21, 67, 96), "pp":vec(169, 204, 227), "ppp":vec(52, 73, 94), "pppp":vec(133, 193, 233), "ppppp":vec(46, 134, 193), "ar":vec(125, 102, 8), "al":vec(243, 156, 18), "br":vec(123, 36, 28), "b":vec(253, 237, 236), "bl":vec(231, 76, 60), "cr":vec(135, 54, 0), "cl":vec(220, 118, 51), "dr":vec(25, 111, 61), "dl":vec(88, 214, 141), "pa":vec(74, 35, 90), "pb":vec(187, 143, 206), }
-#COLORS_TREE = {"p":vec(21, 67, 96), "pp":vec(169, 204, 227), "ppp":vec(52, 73, 94), "pppp":vec(133, 193, 233), "ppppp":vec(46, 134, 193), "ar":vec(125, 102, 8), "al":vec(243, 156, 18), "br":vec(123, 36, 28), "b":vec(253, 237, 236), "bl":vec(231, 76, 60), "cr":vec(135, 54, 0), "cl":vec(220, 118, 51), "dr":vec(25, 111, 61), "dl":vec(88, 214, 141), "pa":vec(74, 35, 90), "pb":vec(187, 143, 206), }
-#COLORS_TREE = {"p":vec(21, 67, 96), "pp":vec(169, 204, 227), "ppp":vec(52, 73, 94), "pppp":vec(133, 193, 233), "ppppp":vec(46, 134, 193), "ar":vec(125, 102, 8), "al":vec(243, 156, 18), "br":vec(123, 36, 28), "b":vec(253, 237, 236), "bl":vec(231, 76, 60), "cr":vec(135, 54, 0), "cl":vec(220, 118, 51), "dr":vec(25, 111, 61), "dl":vec(88, 214, 141), "pa":vec(74, 35, 90), "pb":vec(187, 143, 206), }
+
+COLORS_TREE_ANGLES = True
+COLORS_TREE_LENGTH = False
+
 
 for tree in COLORS_TREE:
     COLORS_TREE[tree] /= 255.0
@@ -345,8 +347,11 @@ class SystemAll():
                 elements.append(element)
         elements[0].set_from_root()
 #        print("")
-        if elements[0].symbol in COLORS_TREE:
-            cylinder(pos = vector(0.0,0.01,0.0), axis = vector(elements[0].position.x, elements[0].position.y, elements[0].position.z), radius = elements[0].width*self.width_scale+min_width, color=COLORS_TREE[elements[0].symbol])
+        if COLORS_TREE_SYMBOLS:
+            if elements[0].symbol in COLORS_TREE:
+                cylinder(pos = vector(0.0,0.01,0.0), axis = vector(elements[0].position.x, elements[0].position.y, elements[0].position.z), radius = elements[0].width*self.width_scale+min_width, color=COLORS_TREE[elements[0].symbol])
+            else:
+                cylinder(pos = vector(0.0,0.01,0.0), axis = vector(elements[0].position.x, elements[0].position.y, elements[0].position.z), radius = elements[0].width*self.width_scale+min_width, color=COLOR_TREE)
         else:
             cylinder(pos = vector(0.0,0.01,0.0), axis = vector(elements[0].position.x, elements[0].position.y, elements[0].position.z), radius = elements[0].width*self.width_scale+min_width, color=COLOR_TREE)
         elements[0].position_abs.x = 0.0 + elements[0].position.x
@@ -383,9 +388,38 @@ class SystemAll():
             ii+=1
 
             element.calculate_position()
-            
-            if element.symbol in COLORS_TREE:
-                cylinder(pos = vector(element.parent.position_abs.x, element.parent.position_abs.y, element.parent.position_abs.z), axis = vector(element.position_calc.x, element.position_calc.y, element.position_calc.z), radius = element.width*self.width_scale+self.min_width, color=COLORS_TREE[element.symbol])
+
+            if COLORS_TREE_SYMBOLS:
+                if element.symbol in COLORS_TREE:
+                    cylinder(pos = vector(element.parent.position_abs.x, element.parent.position_abs.y, element.parent.position_abs.z), axis = vector(element.position_calc.x, element.position_calc.y, element.position_calc.z), radius = element.width*self.width_scale+self.min_width, color=COLORS_TREE[element.symbol])
+                else:
+                    cylinder(pos = vector(element.parent.position_abs.x, element.parent.position_abs.y, element.parent.position_abs.z), axis = vector(element.position_calc.x, element.position_calc.y, element.position_calc.z), radius = element.width*self.width_scale+self.min_width, color=COLOR_TREE)
+            elif COLORS_TREE_ANGLES:
+#                try:
+#                    rrr = math.log(element.rotation.x%360, 2)/8.492
+#                except:
+#                    print("xe:: ", element.rotation.x)
+#                    rrr = 0.0
+#                try:
+#                    ggg = math.log(element.rotation.y%360, 2)/8.492
+#                except:
+#                    print("ye:: ", element.rotation.y)
+#                    ggg = 0.0
+#                try:
+#                    bbb = math.log(element.rotation.z%360, 2)/8.492
+#                except:
+#                    print("ze:: ", element.rotation.y)
+#                    bbb = 0.0
+                rrr = (element.rotation.x%360)/360.0
+                ggg = (element.rotation.y%360)/360.0
+                bbb = (element.rotation.z%360)/360.0
+                cylinder(pos = vector(element.parent.position_abs.x, element.parent.position_abs.y, element.parent.position_abs.z), axis = vector(element.position_calc.x, element.position_calc.y, element.position_calc.z), radius = element.width*self.width_scale+self.min_width, color=vec(rrr, ggg, bbb))
+            elif COLORS_TREE_LENGTH:
+                rrr = min(1.0, max(0.0, (1.0 - (element.position.y-0.85)*10.0)))
+                bbb = min(1.0, max(0.0, 1-abs((element.position.y-0.85)*10.0 - 1.0)))
+                ggg = min(1.0, max(0.0, ((element.position.y-0.85)*10.0 - 1.0)))
+#                print(rrr, ggg, bbb, element.position.y)
+                cylinder(pos = vector(element.parent.position_abs.x, element.parent.position_abs.y, element.parent.position_abs.z), axis = vector(element.position_calc.x, element.position_calc.y, element.position_calc.z), radius = element.width*self.width_scale+self.min_width, color=vec(rrr, ggg, bbb))
             else:
                 cylinder(pos = vector(element.parent.position_abs.x, element.parent.position_abs.y, element.parent.position_abs.z), axis = vector(element.position_calc.x, element.position_calc.y, element.position_calc.z), radius = element.width*self.width_scale+self.min_width, color=COLOR_TREE)
                 
