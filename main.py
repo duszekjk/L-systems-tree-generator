@@ -17,12 +17,21 @@ import gc
 #####################################      ---         definitions and classes         ---      ##########################################
 ##########################################################################################################################################
 
-NR_OF_BATCHES      = 1000
-NR_OF_BATCHES_NOW  = 50
-SAVE_PATH          = "/Users/jacekkaluzny/Pictures/untitled folder/"
-COLOR_TREE         = color.black
+NR_OF_BATCHES      = 5
+NR_OF_BATCHES_NOW  = 4
+SAVE_PATH          = "/Users/jacekkaluzny/Pictures/untitled folder/"    #for json models, images are saved in downloads
+COLOR_TREE         = color.black        # default tree color
 COLOR_BACKGROUND   = color.white
+NODES_SIMPLIFIER   = 1.0                #devide nr of nodes by this number to have smaller trees (with fewer elements)
 
+#       coloring based on node type, length or angle (rgb colors)
+
+COLORS_TREE = {"p":vec(21, 67, 96), "pp":vec(169, 204, 227), "ppp":vec(52, 73, 94), "pppp":vec(133, 193, 233), "ppppp":vec(46, 134, 193), "ar":vec(125, 102, 8), "al":vec(243, 156, 18), "br":vec(123, 36, 28), "b":vec(253, 237, 236), "bl":vec(231, 76, 60), "cr":vec(135, 54, 0), "cl":vec(220, 118, 51), "dr":vec(25, 111, 61), "dl":vec(88, 214, 141), "pa":vec(74, 35, 90), "pb":vec(187, 143, 206), }
+#COLORS_TREE = {"p":vec(21, 67, 96), "pp":vec(169, 204, 227), "ppp":vec(52, 73, 94), "pppp":vec(133, 193, 233), "ppppp":vec(46, 134, 193), "ar":vec(125, 102, 8), "al":vec(243, 156, 18), "br":vec(123, 36, 28), "b":vec(253, 237, 236), "bl":vec(231, 76, 60), "cr":vec(135, 54, 0), "cl":vec(220, 118, 51), "dr":vec(25, 111, 61), "dl":vec(88, 214, 141), "pa":vec(74, 35, 90), "pb":vec(187, 143, 206), }
+#COLORS_TREE = {"p":vec(21, 67, 96), "pp":vec(169, 204, 227), "ppp":vec(52, 73, 94), "pppp":vec(133, 193, 233), "ppppp":vec(46, 134, 193), "ar":vec(125, 102, 8), "al":vec(243, 156, 18), "br":vec(123, 36, 28), "b":vec(253, 237, 236), "bl":vec(231, 76, 60), "cr":vec(135, 54, 0), "cl":vec(220, 118, 51), "dr":vec(25, 111, 61), "dl":vec(88, 214, 141), "pa":vec(74, 35, 90), "pb":vec(187, 143, 206), }
+
+for tree in COLORS_TREE:
+    COLORS_TREE[tree] /= 255.0
 
 species = ["pine", "thuja", "akazia", "maple", "poplar", "birch", "oak", "lemon"]
 
@@ -101,7 +110,7 @@ class System():
         element = Element(template = self.element_templates[self.w], parent = None)
         elements.append(element)
 
-        for i in range(0, self.nrOfNodes):
+        for i in range(0, round(self.nrOfNodes/NODES_SIMPLIFIER)):
             new_row = self.next(elements[i].symbol)
             
             for new_element in new_row:
@@ -324,7 +333,7 @@ class SystemAll():
         element = Element(template = self.element_templates[self.w], parent = None)
         elements.append(element)
         
-        for i in range(0, self.nrOfNodes):
+        for i in range(0, round(self.nrOfNodes/NODES_SIMPLIFIER)):
             try:
                 new_row = self.next(elements[i].symbol)
             except:
@@ -336,7 +345,10 @@ class SystemAll():
                 elements.append(element)
         elements[0].set_from_root()
 #        print("")
-        cylinder(pos = vector(0.0,0.01,0.0), axis = vector(elements[0].position.x, elements[0].position.y, elements[0].position.z), radius = elements[0].width*self.width_scale+min_width, color=COLOR_TREE)
+        if elements[0].symbol in COLORS_TREE:
+            cylinder(pos = vector(0.0,0.01,0.0), axis = vector(elements[0].position.x, elements[0].position.y, elements[0].position.z), radius = elements[0].width*self.width_scale+min_width, color=COLORS_TREE[elements[0].symbol])
+        else:
+            cylinder(pos = vector(0.0,0.01,0.0), axis = vector(elements[0].position.x, elements[0].position.y, elements[0].position.z), radius = elements[0].width*self.width_scale+min_width, color=COLOR_TREE)
         elements[0].position_abs.x = 0.0 + elements[0].position.x
         elements[0].position_abs.y = 0.0 + elements[0].position.y
         elements[0].position_abs.z = 0.0 + elements[0].position.z
@@ -371,15 +383,11 @@ class SystemAll():
             ii+=1
 
             element.calculate_position()
-
-#            if element.symbol == "ar":
-#                cylinder(pos = vector(element.parent.position_abs.x, element.parent.position_abs.y, element.parent.position_abs.z), axis = vector(element.position_calc.x, element.position_calc.y, element.position_calc.z), radius = element.width*self.width_scale+self.min_width, color=color.red)
-#            else:
-            cylinder(pos = vector(element.parent.position_abs.x, element.parent.position_abs.y, element.parent.position_abs.z), axis = vector(element.position_calc.x, element.position_calc.y, element.position_calc.z), radius = element.width*self.width_scale+self.min_width, color=COLOR_TREE)
-#            if element.width > min_width:
-#                cylinder(pos = vector(element.parent.position_abs.x, element.parent.position_abs.y, element.parent.position_abs.z), axis = vector(element.position_calc.x, element.position_calc.y, element.position_calc.z), radius = element.width*self.width_scale+self.min_width, color=color.white)
-#            else:
-#                cylinder(pos = vector(element.parent.position_abs.x, element.parent.position_abs.y, element.parent.position_abs.z), axis = vector(element.position_calc.x, element.position_calc.y, element.position_calc.z), radius = element.width*self.width_scale+self.min_width, color=color.white)
+            
+            if element.symbol in COLORS_TREE:
+                cylinder(pos = vector(element.parent.position_abs.x, element.parent.position_abs.y, element.parent.position_abs.z), axis = vector(element.position_calc.x, element.position_calc.y, element.position_calc.z), radius = element.width*self.width_scale+self.min_width, color=COLORS_TREE[element.symbol])
+            else:
+                cylinder(pos = vector(element.parent.position_abs.x, element.parent.position_abs.y, element.parent.position_abs.z), axis = vector(element.position_calc.x, element.position_calc.y, element.position_calc.z), radius = element.width*self.width_scale+self.min_width, color=COLOR_TREE)
                 
             element.position_abs.x = element.parent.position_abs.x + element.position_calc.x
             element.position_abs.y = element.parent.position_abs.y + element.position_calc.y
@@ -815,7 +823,7 @@ add_system(system)
 ###############################################      ---  PREPARE FOR EXPORTING   ---      ###############################################
 ##########################################################################################################################################
 
-#scene = canvas(x=0, y=0, width=512, height=512, background=vector(0, 0, 0))
+#scene = canvas(x=0, y=0, width=2048, height=2048, background=vector(0, 0, 0))
 #scene.center = vector(1.0, 0.0, 1.0)
 #scene.select()
 
@@ -848,7 +856,7 @@ if not continue_task:
     except:
         CSVfile = open(SAVE_PATH+"desc.csv", "w+")
         system = SystemAll(system = systems_array_simple[0])
-        scene = canvas(x=0, y=0, width=512, height=512, background=COLOR_BACKGROUND)
+        scene = canvas(x=0, y=0, width=2048, height=2048, background=COLOR_BACKGROUND)
         system.P = all_dictionary.copy()
 
         for key in systems_array_simple[0].P:
@@ -881,7 +889,7 @@ for batch_id in range(last_batch_id, NR_OF_BATCHES_NOW):
     for system_load in systems_array_simple:
 #        scene_clear(scene)
 #        scene_clear(scene)
-        scene = canvas(x=0, y=0, width=512, height=512, background=COLOR_BACKGROUND)
+        scene = canvas(x=0, y=0, width=2048, height=2048, background=COLOR_BACKGROUND)
         timeChange = time.time()-timeStart
         timeAvg = timeChange/(1.0+(batch_id-last_batch_id))
         scene.caption = "<br> <p>"+str("%6.2f" % (batch_id*100.0/NR_OF_BATCHES_NOW))+"%\t\ttime: "+ str("%8.2f" % (timeChange/60.0))+"m\t\tfor batch:"+ str("%6.2f" % (timeAvg))+ "s\t\ttime 1000: "+ str("%6.2f" % (timeAvg*1000.0/3600.0))+ "h\t\t"+ "time left: "+ str("%8.2f m\t\t" % (timeAvg*(NR_OF_BATCHES_NOW-batch_id)/60.0))+str("""<br>
