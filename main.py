@@ -9,7 +9,8 @@ import time
 import os
 import sys
 import gc
-
+import copy
+from deepdiff import DeepDiff
 #from pympler.tracker import SummaryTracker
 #tracker = SummaryTracker()
 
@@ -18,19 +19,24 @@ import gc
 ##########################################################################################################################################
 
 NR_OF_BATCHES      = 5
-NR_OF_BATCHES_NOW  = 4
+NR_OF_BATCHES_NOW  = 1
 SAVE_PATH          = "/Users/jacekkaluzny/Pictures/untitled folder/"    #for json models, images are saved in downloads
 COLOR_TREE         = color.black        # default tree color
 COLOR_BACKGROUND   = color.white
 NODES_SIMPLIFIER   = 20.0                #devide nr of nodes by this number to have smaller trees (with fewer elements)
 
 #       coloring based on node type (rgb colors)
-COLORS_TREE_SYMBOLS = False
-COLORS_TREE = {"p":vec(21, 67, 96), "pp":vec(169, 204, 227), "ppp":vec(52, 73, 94), "pppp":vec(133, 193, 233), "ppppp":vec(46, 134, 193), "ar":vec(125, 102, 8), "al":vec(243, 156, 18), "br":vec(123, 36, 28), "b":vec(253, 237, 236), "bl":vec(231, 76, 60), "cr":vec(135, 54, 0), "cl":vec(220, 118, 51), "dr":vec(25, 111, 61), "dl":vec(88, 214, 141), "pa":vec(74, 35, 90), "pb":vec(187, 143, 206), }
+COLORS_TREE_SYMBOLS = True
+COLORS_TREE = {"AAAA":vec(21, 67, 96), "AAAB":vec(169, 204, 227), "AAAC":vec(52, 73, 94), "AAAD":vec(133, 193, 233), "AAAE":vec(46, 134, 193), "AAAF":vec(125, 102, 8), "AAAG":vec(243, 156, 18), "AAAH":vec(123, 36, 28), "AAAI":vec(253, 237, 236), "AABA":vec(231, 76, 60), "AAGA":vec(135, 54, 0), "AAHA":vec(220, 118, 51), "AAQA":vec(25, 111, 61), "ACAA":vec(88, 214, 141), "ACAB":vec(74, 35, 90), "ACAC":vec(187, 143, 206), "ADAA":vec(255,215,0), "AQAA":vec(154,205,50), "EACA":vec(0,128,0), "EADA":vec(0,255,0), "EADB":vec(0,250,154), "EAEA":vec(32,178,170), "EAEB":vec(0,255,255), "EAGA":vec(70,130,180), "EAOA":vec(0,0,128), "HAAA":vec(106,90,205), }
 
-COLORS_TREE_ANGLES = True
+COLORS_TREE_ANGLES = False
 COLORS_TREE_LENGTH = False
+COLORS_TREE_ANGLE = False
+COLORS_TREE_ANGLE_AXIS = "z"
 
+ROTATION_ABSOLUTE = False
+
+alfabet = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q"]
 
 for tree in COLORS_TREE:
     COLORS_TREE[tree] /= 255.0
@@ -159,6 +165,64 @@ def add_system(system):
     global systems_array_simple
     global all_dictionary
     
+
+
+    ##--old end---
+##-------new start--------
+    listOfSymbols = {}
+    system_P = {}
+#    for key in system.old_symbols:
+#        listOfSymbols[k]
+
+    for key in system.P:
+#        print(key)
+        new_symbol = alfabet[int(system.element_templates[key].rotation.x / 45)]+alfabet[int(system.element_templates[key].rotation.y / 45)]+alfabet[int(system.element_templates[key].rotation.z / 45)]
+        j = 0
+        while new_symbol + alfabet[j] in listOfSymbols.values():
+            j+=1
+        listOfSymbols[key] = new_symbol + alfabet[j]
+        new_symbol += alfabet[j]
+        print(key, new_symbol)
+    system.w = listOfSymbols[system.w]
+    for i in range(0, len(system.V)):
+        system.V[i] = listOfSymbols[system.V[i]]
+    for key in system.P:
+        new_list = []
+        for v in system.P[key]:
+            new_list.append(listOfSymbols[v])
+        system_P[listOfSymbols[key]] = new_list
+
+#            j = 0
+#            while listOfSymbols[key]+"."+str(j) in all_dictionary and str(system_P[listOfSymbols[key]]) != str(all_dictionary[listOfSymbols[key]+"."+str(j)][1]):
+#                j+=1
+#            if listOfSymbols[key]+"."+str(j) in all_dictionary:
+#                all_dictionary[listOfSymbols[key]+"."+str(j)][2].append(system.id)
+#            else:
+#                all_dictionary[listOfSymbols[key]+"."+str(j)] = (5, system_P[listOfSymbols[key]], [system.id,])
+    system.P = system_P
+    new_templates = {}
+    for key in system.element_templates:
+        new_templates[listOfSymbols[key]] = system.element_templates[key]
+        new_templates[listOfSymbols[key]].symbol = listOfSymbols[key]
+#        print(key,":", system.element_templates[key])
+#        new_templates[listOfSymbols[key]].parent =
+        
+
+#    for key in new_templates:
+#        print(key,":", new_templates[key])
+#
+#    print(system.element_templates)
+#    print(new_templates)
+
+    system.element_templates = new_templates
+#        print(key+"."+str(j), all_dictionary[key+"."+str(j)])
+
+#    systems_array_simple.append(system)
+    print(listOfSymbols)
+##-----------new end----------
+
+    
+    ##--old start---
     systems_array_simple.append(system)
     for key in system.P:
 #        print(key)
@@ -170,6 +234,14 @@ def add_system(system):
         else:
             all_dictionary[key+"."+str(j)] = (5, system.P[key], [system.id,])
 #        print(key+"."+str(j), all_dictionary[key+"."+str(j)])
+#    print(system.element_templates["ADAA"].rotation, systemb.element_templates["p"].rotation)
+#    print(system.element_templates["EACA"].rotation, systemb.element_templates["ar"].rotation)
+#    print(system.element_templates["EAGA"].rotation, systemb.element_templates["al"].rotation)
+#    print(system.V, systemb.V)
+#    print(system.w, systemb.w)
+#    print(system.id, systemb.id)
+#    print(DeepDiff(system.element_templates["EACA"], systemb.element_templates["ar"]))
+    ##--old end---
 
 
 
@@ -188,6 +260,7 @@ class SystemAll():
     width_rate = 0.9
     min_width = 0.3
     element_templates = {}
+#    old_symbols = {}
     ply_shape = None
     json = ""
     #    P = {"ar.0": (95,["al", "br"]), "al.0": (95, ["bl", "ar"]), "br.0": (95, ["ar"]), "bl.0": (95, ["al"])}
@@ -196,6 +269,7 @@ class SystemAll():
         self.r = {}
         self.P = {}
         self.element_templates = {}
+#        self.old_symbols = {}
         self.V = []
         if system != None:
             self.V = system.V
@@ -343,6 +417,7 @@ class SystemAll():
             
             for new_element in new_row:
                 element = Element(template = self.element_templates[new_element], parent = elements[i], width = self.width_rate**i)
+#                print("parent:", elements[i].symbol)
                 elements[i].children.append(element)
                 elements.append(element)
         elements[0].set_from_root()
@@ -395,21 +470,6 @@ class SystemAll():
                 else:
                     cylinder(pos = vector(element.parent.position_abs.x, element.parent.position_abs.y, element.parent.position_abs.z), axis = vector(element.position_calc.x, element.position_calc.y, element.position_calc.z), radius = element.width*self.width_scale+self.min_width, color=COLOR_TREE)
             elif COLORS_TREE_ANGLES:
-#                try:
-#                    rrr = math.log(element.rotation.x%360, 2)/8.492
-#                except:
-#                    print("xe:: ", element.rotation.x)
-#                    rrr = 0.0
-#                try:
-#                    ggg = math.log(element.rotation.y%360, 2)/8.492
-#                except:
-#                    print("ye:: ", element.rotation.y)
-#                    ggg = 0.0
-#                try:
-#                    bbb = math.log(element.rotation.z%360, 2)/8.492
-#                except:
-#                    print("ze:: ", element.rotation.y)
-#                    bbb = 0.0
                 rrr = (element.rotation.x%360)/360.0
                 ggg = (element.rotation.y%360)/360.0
                 bbb = (element.rotation.z%360)/360.0
@@ -420,14 +480,26 @@ class SystemAll():
                 ggg = min(1.0, max(0.0, ((element.position.y-0.85)*10.0 - 1.0)))
 #                print(rrr, ggg, bbb, element.position.y)
                 cylinder(pos = vector(element.parent.position_abs.x, element.parent.position_abs.y, element.parent.position_abs.z), axis = vector(element.position_calc.x, element.position_calc.y, element.position_calc.z), radius = element.width*self.width_scale+self.min_width, color=vec(rrr, ggg, bbb))
+            elif COLORS_TREE_ANGLE:
+                rotation_color = (element.rotation.x%360)/360.0
+                if(COLORS_TREE_ANGLE_AXIS == "y"):
+                    rotation_color = (element.rotation.y%360)/360.0
+                if(COLORS_TREE_ANGLE_AXIS == "z"):
+                    rotation_color = (element.rotation.z%360)/360.0
+                rrr = min(1.0, max(0.0, (1.0 - (rotation_color)*2.0)))
+                bbb = min(1.0, max(0.0, 1-abs((rotation_color)*2.0 - 1.0)))
+                ggg = min(1.0, max(0.0, ((rotation_color)*2.0 - 1.0)))
+#                print(rrr, ggg, bbb, element.position.y)
+                cylinder(pos = vector(element.parent.position_abs.x, element.parent.position_abs.y, element.parent.position_abs.z), axis = vector(element.position_calc.x, element.position_calc.y, element.position_calc.z), radius = element.width*self.width_scale+self.min_width, color=vec(rrr, ggg, bbb))
             else:
                 cylinder(pos = vector(element.parent.position_abs.x, element.parent.position_abs.y, element.parent.position_abs.z), axis = vector(element.position_calc.x, element.position_calc.y, element.position_calc.z), radius = element.width*self.width_scale+self.min_width, color=COLOR_TREE)
-                
             element.position_abs.x = element.parent.position_abs.x + element.position_calc.x
             element.position_abs.y = element.parent.position_abs.y + element.position_calc.y
             element.position_abs.z = element.parent.position_abs.z + element.position_calc.z
             
             json_string += element.json().replace("THIREPLACE", str(element.width*self.width_scale+self.min_width)) + ","
+
+        print(ii)
 
         json_string = json_string[:-1]
         json_string += """
@@ -475,6 +547,11 @@ class Element:
         self.position_calc= Position(0.0, 0.0, 0.0)
         self.axis_abs     = Position(0.0, 0.0, 0.0)
         self.width        = width
+#        if(ROTATION_ABSOLUTE):
+#            self.rotation_abs.x = self.rotation.x%360.0
+#            self.rotation_abs.y = self.rotation.y%360.0
+#            self.rotation_abs.z = self.rotation.z%360.0
+#        else:
         if(self.parent != None):
             self.rotation_abs.x = (self.parent.rotation_abs.x + (self.rotation.x*(0.9**from_root)))%360.0
             self.rotation_abs.y = (self.parent.rotation_abs.y + self.rotation.y*(0.9**from_root))%360.0
@@ -547,6 +624,12 @@ class Element:
         for child in self.children:
             child.set_from_root(d+1)
     def alignWithVector(self):
+
+#        if(ROTATION_ABSOLUTE):
+#            self.rotation_abs.x = self.rotation.x%360.0
+#            self.rotation_abs.y = self.rotation.y%360.0
+#            self.rotation_abs.z = self.rotation.z%360.0
+#        else:
         if(self.parent != None):
             self.rotation_abs.x = (self.parent.rotation_abs.x + self.rotation.x)%360.0
             self.rotation_abs.y = (self.parent.rotation_abs.y + self.rotation.y)%360.0
@@ -608,7 +691,6 @@ all_dictionary = {}
 #system.element_templates["p"] = Element(symbol = "p", position = Position(0.0, 2.0, 0.0), rotation = Position(0.0,30.0,0.0))
 #system.element_templates["cr"] = Element(symbol = "cr", position = Position(0.0, r1, 0.0), rotation = Position(0.0,1.0,0.0))
 #system.element_templates["cl"] = Element(symbol = "cl", position = Position(0.0, r2, 0.0), rotation = Position(0.0,1.0,0.0))
-
 
 ##00
 
@@ -923,7 +1005,10 @@ for batch_id in range(last_batch_id, NR_OF_BATCHES_NOW):
     for system_load in systems_array_simple:
 #        scene_clear(scene)
 #        scene_clear(scene)
+        print("new system / ", len(systems_array_simple))
         scene = canvas(x=0, y=0, width=2048, height=2048, background=COLOR_BACKGROUND)
+        scene.lights = []
+        scene.ambient=color.gray(0.8)
         timeChange = time.time()-timeStart
         timeAvg = timeChange/(1.0+(batch_id-last_batch_id))
         scene.caption = "<br> <p>"+str("%6.2f" % (batch_id*100.0/NR_OF_BATCHES_NOW))+"%\t\ttime: "+ str("%8.2f" % (timeChange/60.0))+"m\t\tfor batch:"+ str("%6.2f" % (timeAvg))+ "s\t\ttime 1000: "+ str("%6.2f" % (timeAvg*1000.0/3600.0))+ "h\t\t"+ "time left: "+ str("%8.2f m\t\t" % (timeAvg*(NR_OF_BATCHES_NOW-batch_id)/60.0))+str("""<br>
@@ -966,23 +1051,25 @@ for batch_id in range(last_batch_id, NR_OF_BATCHES_NOW):
         system = None
         system = SystemAll(system = system_load)
         system.P = all_dictionary.copy()
-
+        Piii = 0
         for key in system_load.P:
-#            print(key+": "+str(system_load.P[key]), end=", ")
+            Piii += 1
+            print(key, end=", ")
             for ii in range(0,100):
                 if key+"."+str(ii) in system.P:
                     if system_load.id in system.P[key+"."+str(ii)][2]:
                         system.P[key+"."+str(ii)] = (95, system.P[key+"."+str(ii)][1], system.P[key+"."+str(ii)][2])
                 else:
                     break
-            if key == 'p':
+            if Piii == 1:
                 system.p1 = system_load.element_templates[key].rotation.x
                 system.p2 = system_load.element_templates[key].rotation.y
                 system.p3 = system_load.element_templates[key].rotation.z
             else:
                 system.a.update(system_load.element_templates[key].a())
+                print("(a", system_load.element_templates[key].a(), ")", end=";")
             system.r.update(system_load.element_templates[key].r())
-#        print("")
+        print("")
 #        for key in system.P:
 #            if int(system.P[key][0]) > 80:
 #                print(key+': '+str(system.P[key][1])+" "+str(system.P[key][0])+', ', end=" ")
@@ -990,6 +1077,8 @@ for batch_id in range(last_batch_id, NR_OF_BATCHES_NOW):
         system.refresh()
 
         name = str("%04d_" % (jj)) + species[system.id]
+        print(system.header())
+        print(system,"\n")
         system.render(scene)
         CSVfile.write(name+", "+species[system.id]+", "+str(system))
         file_json = open(SAVE_PATH+name+".json", "w+")
