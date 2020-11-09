@@ -1,13 +1,5 @@
 # L-systems-tree-generator
-Generate tree models from L-systems
+Project moved from python to Unity because of convinence, but it's to large to be stored on github
 
-Done:
-- simple a b L-system
-- added positions of branches
-- first visualisation preview
-
-To to:
-- correct angles between branches and positions
-- add thickness
-- exporting to json and ply
-- visualisation for images
+see more at:
+https://drive.google.com/drive/folders/1Z5cnIPgN_X2VeKufus3qCGLLOO5qF7o1?usp=sharing 
